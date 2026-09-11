@@ -107,43 +107,50 @@ module.exports = {
     });
 
     collector.on("collect", async (i) => {
-      if (i.user.id !== message.author.id) {
-        return i.reply({ content: "❌ Only the person who ran this command can use these buttons", ephemeral: true });
-      }
-
-      if (i.customId === "help_prev") {
-        index = Math.max(0, index - 1);
-        await i.update({ embeds: [renderPage(pages, index, client)], components: [buildRow(index, pages.length)] });
-      } else if (i.customId === "help_next") {
-        index = Math.min(pages.length - 1, index + 1);
-        await i.update({ embeds: [renderPage(pages, index, client)], components: [buildRow(index, pages.length)] });
-      } else if (i.customId === "help_delete") {
-        await msg.delete().catch(() => {});
-        collector.stop();
-      } else if (i.customId === "help_search") {
-        const modal = new ModalBuilder().setCustomId("help_search_modal").setTitle("Search commands");
-        const input = new TextInputBuilder().setCustomId("help_search_input").setLabel("Command name").setStyle(TextInputStyle.Short).setRequired(true);
-        modal.addComponents(new ActionRowBuilder().addComponents(input));
-        await i.showModal(modal);
-
-        const submitted = await i.awaitModalSubmit({ time: 30000, filter: (m) => m.customId === "help_search_modal" && m.user.id === message.author.id }).catch(() => null);
-        if (!submitted) return;
-
-        const query = submitted.fields.getTextInputValue("help_search_input").toLowerCase();
-        const found = client.commands.get(query) || client.commands.find((c) => c.aliases && c.aliases.includes(query));
-        if (!found) {
-          return submitted.reply({ content: `❌ No command called \`${query}\` found`, ephemeral: true });
+      try {
+        if (i.user.id !== message.author.id) {
+          return i.reply({ content: "❌ Only the person who ran this command can use these buttons", ephemeral: true });
         }
-        const embed = new EmbedBuilder()
-          .setColor(color)
-          .setTitle(`Command: ${found.name}`)
-          .addFields(
-            { name: "Description", value: found.description || "No description" },
-            { name: "Usage", value: `\`\`\`${found.usage || found.name}\`\`\`` },
-            { name: "Aliases", value: found.aliases && found.aliases.length ? found.aliases.join(", ") : "None", inline: true },
-            { name: "Category", value: found.category || "miscellaneous", inline: true }
-          );
-        return submitted.reply({ embeds: [embed], ephemeral: true });
+
+        if (i.customId === "help_prev") {
+          index = Math.max(0, index - 1);
+          await i.update({ embeds: [renderPage(pages, index, client)], components: [buildRow(index, pages.length)] });
+        } else if (i.customId === "help_next") {
+          index = Math.min(pages.length - 1, index + 1);
+          await i.update({ embeds: [renderPage(pages, index, client)], components: [buildRow(index, pages.length)] });
+        } else if (i.customId === "help_delete") {
+          await msg.delete().catch(() => {});
+          collector.stop();
+        } else if (i.customId === "help_search") {
+          const modal = new ModalBuilder().setCustomId("help_search_modal").setTitle("Search commands");
+          const input = new TextInputBuilder().setCustomId("help_search_input").setLabel("Command name").setStyle(TextInputStyle.Short).setRequired(true);
+          modal.addComponents(new ActionRowBuilder().addComponents(input));
+          await i.showModal(modal);
+
+          const submitted = await i.awaitModalSubmit({ time: 30000, filter: (m) => m.customId === "help_search_modal" && m.user.id === message.author.id }).catch(() => null);
+          if (!submitted) return;
+
+          const query = submitted.fields.getTextInputValue("help_search_input").toLowerCase();
+          const found = client.commands.get(query) || client.commands.find((c) => c.aliases && c.aliases.includes(query));
+          if (!found) {
+            return submitted.reply({ content: `❌ No command called \`${query}\` found`, ephemeral: true });
+          }
+          const embed = new EmbedBuilder()
+            .setColor(color)
+            .setTitle(`Command: ${found.name}`)
+            .addFields(
+              { name: "Description", value: found.description || "No description" },
+              { name: "Usage", value: `\`\`\`${found.usage || found.name}\`\`\`` },
+              { name: "Aliases", value: found.aliases && found.aliases.length ? found.aliases.join(", ") : "None", inline: true },
+              { name: "Category", value: found.category || "miscellaneous", inline: true }
+            );
+          return submitted.reply({ embeds: [embed], ephemeral: true });
+        }
+      } catch (err) {
+        console.error("help.js button handler error:", err);
+        if (!i.replied && !i.deferred) {
+          i.reply({ content: "❌ Something went wrong handling that button.", ephemeral: true }).catch(() => {});
+        }
       }
     });
 
