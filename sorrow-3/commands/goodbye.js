@@ -29,7 +29,7 @@ module.exports = {
     if (!message.member.permissions.has(PermissionFlagsBits.ManageGuild)) return message.reply({ embeds:[missperms]});
 
     let prefix = await db.get(`prefix_${message.guild.id}`);
-    if (prefix === null) { prefix = default_prefix; };
+    if (prefix == null) { prefix = default_prefix; };
     if (message.author.bot) return;
     const embed = new EmbedBuilder()
       .setDescription(`\👋  **farewell old member** \n • goodbye channel \n • goodbye message \n • goodbye footer \n • goodbye author \n • goodbye image \n • goodbye removeimage \n • goodbye clear \n • goodbye stats \n • goodbye variables \n • goodbye color`)
@@ -41,7 +41,7 @@ module.exports = {
     if (args[0] === 'message') {
       await db.set(`leavemessage_${message.guild.id}`, args.splice(1).join(' '))
       let wlcmsg = await db.get(`leavemessage_${message.guild.id}`)
-      if (wlcmsg === null) {
+      if (wlcmsg == null) {
         const setmsgembed = new EmbedBuilder()
           .setDescription(`${xmark} There is no goodbye message set one with ${prefix}goodbye message`)
           .setColor(error)
@@ -55,7 +55,7 @@ module.exports = {
       }
     } else if (args[0] === 'test') {
       let chx = await db.get(`leavechannel_${message.guild.id}`);
-      if (chx === null) {
+      if (chx == null) {
         let nochan = new EmbedBuilder()
           .setDescription(`${xmark} There is no goodbye channel set`)
           .setColor(error)
@@ -63,28 +63,28 @@ module.exports = {
         return message.reply({embeds:[nochan]})
       }
       let welcome = await db.get(`leavemessage_${message.guild.id}`);
-      if (welcome === null) {
+      if (welcome == null) {
                 const setmsgembed = new EmbedBuilder()
           .setDescription(`${xmark} There is no goodbye message set one with ${prefix}goodbye message`)
           .setColor(error)
         return message.reply({embeds:[setmsgembed]})
       }
       let footer = await db.get(`leaveembed_${message.guild.id}`);
-      if (footer === null) { footer = `` }
+      if (footer == null) { footer = `` }
       let image = await db.get(`leaveimage_${message.guild.id}`)
-      if (image === null) {
+      if (image == null) {
         //image = `https://cdn.discordapp.com/attachments/989999587890712606/990905254138765362/Screenshot_7.png`
       } 
       let author = await db.get(`leaveauthor_${message.guild.id}`)
-      if (author === null) {
+      if (author == null) {
         author = ""
       }
        let colors = await db.get(`leavecolor_${message.guild.id}`) 
-       if(colors === null) {
+       if(colors == null) {
          colors = color;
        }
       let thumbnail = await db.get(`leavethumbnail_${message.guild.id}`)
-      if(thumbnail === null) {
+      if(thumbnail == null) {
         thumbnail = ` `
       }
       if(thumbnail === '')
@@ -139,7 +139,7 @@ module.exports = {
       .setFooter({text:`${footer}`})
       client.channels.cache.get(chx).send({embeds:[welcembed]}).catch((error) =>{return message.reply(error)}).then(() => message.channel.send({embeds:[tested]}))
       
-      if (chx === null) {
+      if (chx == null) {
         let chxnull = new EmbedBuilder()
         .setDescription(`${xmark} There is no goodbye channel set`)
         .setColor(error)
@@ -182,7 +182,7 @@ module.exports = {
     else if(args[0] === "footer"){
       await db.set(`leaveembed_${message.guild.id}`, args.splice(1).join(' '))
         let footers = await db.get(`leaveembed_${message.guild.id}`);
-      if (footers === null) return;
+      if (footers == null) return;
       let footemebed = new EmbedBuilder()
       .setTitle(`${checked} sucessfuly updated footer`)
        .setDescription(`${footers}`)
@@ -241,27 +241,27 @@ module.exports = {
     } else if(args[0] === "stats") {
   
       let footers = await db.get(`leaveembed_${message.guild.id}`);
-      if (footers === null) footers = 'Not Set';
+      if (footers == null) footers = 'Not Set';
       
       let welcome = await db.get(`leavemessage_${message.guild.id}`)
-      if (welcome === null)   welcome = 'Not Set'
+      if (welcome == null)   welcome = 'Not Set'
       
      let chx = await db.get(`leavechannel_${message.guild.id}`);
       if (chx) chx = `<#${chx}>`
-      else if (chx === null) chx = `Not Set`
+      else if (chx == null) chx = `Not Set`
       
       let image = await db.get(`leaveimage_${message.guild.id}`)
       if(image) image = `[Image](${image})` 
-      else if (image === null) image = 'Not Set'
+      else if (image == null) image = 'Not Set'
       let author = await db.get(`leaveauthor_${message.guild.id}`)
-      if (author === null) {
+      if (author == null) {
         author = "Not Set"
       }
       let colors = await db.get(`leavecolor_${message.guild.id}`)
-      if (colors === null) colors = "Not Set"
+      if (colors == null) colors = "Not Set"
             let thumbnail = await db.get(`leavethumbnail_${message.guild.id}`)
             if(thumbnail) thumbnail = `[Thumbnail](${thumbnail})` 
-      else if(thumbnail === null) {
+      else if(thumbnail == null) {
         thumbnail = "Not Set"
       }
       

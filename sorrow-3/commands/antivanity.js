@@ -27,7 +27,7 @@ module.exports = {
       message.react(`⌛`);
     } else {
       let vanity = await db.get(`vanity_${message.guild.id}`);
-      if (vanity === null) {
+      if (vanity == null) {
         vanity = `Not Set`;
       }
 
@@ -81,7 +81,7 @@ module.exports = {
           });
       } else if (args[0] == "info") {
         let vanity = await db.get(`vanity_${message.guild.id}`);
-        if (vanity === null) {
+        if (vanity == null) {
           vanity = `There's no vanity set`;
         }
         let embed11 = new EmbedBuilder()

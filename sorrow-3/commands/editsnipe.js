@@ -25,7 +25,7 @@ module.exports = {
               let ok = new EmbedBuilder()
         .setDescription(`${xmark} there are no recently edited messages`)
         .setColor(error)
-      if (msg === null) return message.reply({embeds:[ok]})
+      if (msg == null) return message.reply({embeds:[ok]})
       let embed = new EmbedBuilder()
      // .addField(`${msg.author}`,`${msg.content}   `)
       .setAuthor({name:`${msg.author}`,iconURL:`${msg.avatar}`})

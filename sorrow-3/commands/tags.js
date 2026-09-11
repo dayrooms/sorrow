@@ -32,7 +32,7 @@ module.exports = {
       
             
       const data = await db.get(`tags`) || 'no availabe tags'
-        if(data === null) return message.reply({embeds:[{description:`No available tags `,color:error}]})
+        if(data == null) return message.reply({embeds:[{description:`No available tags `,color:error}]})
     let i0 = 0;
       let i1 = 10;
       let page = 1;

@@ -27,7 +27,7 @@ module.exports = {
             let i = 0
             if(ms.user.bot) continue;
             let dc = await db.get(`activity_${ms.guild.id}_${ms.id}`)
-            if(!dc && dc === null) continue;
+            if(!dc && dc == null) continue;
             sorted.push([`${ms.user.tag} `,await db.get(`activity_${ms.guild.id}_${ms.id}`)])
           }
         let description =
@@ -56,7 +56,7 @@ module.exports = {
                 let i = 0
                 if(ms.user.bot) continue;
                 let dc = await db.get(`level_${ms.guild.id}_${ms.id}`)
-                if(!dc && dc === null) continue;
+                if(!dc && dc == null) continue;
                 sorted.push([`${ms.user.tag} `,await db.get(`level_${ms.guild.id}_${ms.id}`)])
               }
             let description =

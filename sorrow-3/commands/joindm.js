@@ -29,7 +29,7 @@ module.exports = {
     if (!message.member.permissions.has(PermissionFlagsBits.ManageGuild)) return message.reply({ embeds:[missperms]});
 
     let prefix = await db.get(`prefix_${message.guild.id}`);
-    if (prefix === null) { prefix = default_prefix; };
+    if (prefix == null) { prefix = default_prefix; };
     if (message.author.bot) return;
     const embed = new EmbedBuilder()
       .setDescription(`\👋  **joindm setup** \n • joindm embed • joindm message \n • joindm footer \n • joindm author \n • joindm image \n • joindm removeimage \n • joindm clear \n • joindm stats \n • joindm variables \n • joindm color`)
@@ -41,7 +41,7 @@ module.exports = {
     if (args[0] === 'message') {
       await db.set(`joindmmessage_${message.guild.id}`, args.splice(1).join(' '))
       let wlcmsg = await db.get(`joindmmessage_${message.guild.id}`)
-      if (wlcmsg === null) {
+      if (wlcmsg == null) {
         const setmsgembed = new EmbedBuilder()
           .setDescription(`${xmark} There is no joindm message set one with ${prefix}welcome message`)
           .setColor(error)
@@ -57,28 +57,28 @@ module.exports = {
       
 
       let welcome = await db.get(`joindmmessage_${message.guild.id}`);
-      if (welcome === null) {
+      if (welcome == null) {
                 const setmsgembed = new EmbedBuilder()
           .setDescription(`${xmark} There is no joindm message set one with ${prefix}welcome message`)
           .setColor(error)
         return message.reply({embeds:[setmsgembed]})
       }
       let footer = await db.get(`joindmwelcembed_${message.guild.id}`);
-      if (footer === null) { footer = `` }
+      if (footer == null) { footer = `` }
       let image = await db.get(`joindmimage_${message.guild.id}`)
-      if (image === null) {
+      if (image == null) {
         //image = `https://cdn.discordapp.com/attachments/989999587890712606/990905254138765362/Screenshot_7.png`
       } 
       let author = await db.get(`joindmauthor_${message.guild.id}`)
-      if (author === null) {
+      if (author == null) {
         author = ""
       }
        let colors = await db.get(`joindmcolor_${message.guild.id}`) 
-       if(colors === null) {
+       if(colors == null) {
          colors = color;
        }
       let thumbnail = await db.get(`joindmthumbnail_${message.guild.id}`)
-      if(thumbnail === null) {
+      if(thumbnail == null) {
         thumbnail = ` `
       }
       if(thumbnail === '')
@@ -171,7 +171,7 @@ module.exports = {
     else if(args[0] === "footer"){
       await db.set(`joindmwelcembed_${message.guild.id}`, args.splice(1).join(' '))
         let footers = await db.get(`joindmwelcembed_${message.guild.id}`);
-      if (footers === null) return;
+      if (footers == null) return;
       let footemebed = new EmbedBuilder()
       .setTitle(`${checked} sucessfuly updated footer`)
        .setDescription(`${footers}`)
@@ -230,31 +230,31 @@ module.exports = {
     } else if(args[0] === "stats") {
   
       let footers = await db.get(`joindmwelcembed_${message.guild.id}`);
-      if (footers === null) footers = 'Not Set';
+      if (footers == null) footers = 'Not Set';
       
       let welcome = await db.get(`joindmmessage_${message.guild.id}`)
-      if (welcome === null)   welcome = 'Not Set'
+      if (welcome == null)   welcome = 'Not Set'
       
       
       let image = await db.get(`joindmimage_${message.guild.id}`)
       if(image) image = `[Image](${image})` 
-      else if (image === null) image = 'Not Set'
+      else if (image == null) image = 'Not Set'
       let author = await db.get(`joindmauthor_${message.guild.id}`)
-      if (author === null) {
+      if (author == null) {
         author = "Not Set"
       }
       let colors = await db.get(`joindmcolor_${message.guild.id}`)
-      if (colors === null) colors = "Not Set"
+      if (colors == null) colors = "Not Set"
             let thumbnail = await db.get(`joindmthumbnail_${message.guild.id}`)
             if(thumbnail) thumbnail = `[Thumbnail](${thumbnail})` 
-      else if(thumbnail === null) {
+      else if(thumbnail == null) {
         thumbnail = "Not Set"
       }
       let em = await db.get(`embedoff_${message.guild.id}`)
       if(em == true){
         em === `Enabled`
       }
-      else if(em === null){
+      else if(em == null){
         em === `Enabled`
       }
       welcome = welcome.replace('{user}', message.member);

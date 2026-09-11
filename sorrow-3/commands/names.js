@@ -27,7 +27,7 @@ module.exports = {
     let mentionedMember = await message.mentions.members.first() || message.guild.members.cache.get(args[0]) || message.guild.members.cache.find(r => r.user.username.toLowerCase() === args.join(' ').toLocaleLowerCase()) || message.guild.members.cache.find(r => r.displayName.toLowerCase() === args.join(' ').toLocaleLowerCase()) || client.users.cache.get(args[0]) || message.member
        
       const data = await db.get(`names_${mentionedMember.user.id}`) 
-        if(data === null) return message.reply({embeds:[{title:`${mentionedMember.user.tag} Names History`,description:`\`1\` ${mentionedMember.user.tag}`,color:color,thumbnail:{url:`${mentionedMember.user.displayAvatarURL({dynamic:true,size:4096})}`}}]})
+        if(data == null) return message.reply({embeds:[{title:`${mentionedMember.user.tag} Names History`,description:`\`1\` ${mentionedMember.user.tag}`,color:color,thumbnail:{url:`${mentionedMember.user.displayAvatarURL({dynamic:true,size:4096})}`}}]})
     let i0 = 0;
       let i1 = 10;
       let page = 1;

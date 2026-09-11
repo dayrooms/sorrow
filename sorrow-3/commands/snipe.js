@@ -28,7 +28,7 @@ module.exports = {
         .setDescription(`${xmark} ${message.member} there are no recently deleted messages`)
         .setColor(error)
         
-      if (msg === null) return message.reply({embeds:[ok]})
+      if (msg == null) return message.reply({embeds:[ok]})
       msg.reverse()
       if(args[0] > msg.length) return message.reply({embeds:[{description:`${xmark} ${message.member} that index doesn't exist longest is ${msg.length} `,color:error}]})
       let embed = new EmbedBuilder()

@@ -31,6 +31,7 @@ const client = new Client({
     GatewayIntentBits.GuildPresences,
     GatewayIntentBits.GuildVoiceStates,
     GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildMessageReactions,
     GatewayIntentBits.GuildMessageTyping,
     GatewayIntentBits.DirectMessages,
@@ -71,6 +72,18 @@ client.loadedOn = Date.now()
 
 const headers = { "Authorization": 'Bot ' + token };
 client.commands = new Collection();
+
+// Render's free "Web Service" tier requires an HTTP port to be bound,
+// even though a Discord bot doesn't need one. This tiny server exists
+// purely to satisfy that health check — it does nothing else.
+const http = require("http");
+const PORT = process.env.PORT || 3000;
+http.createServer((req, res) => {
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("Sorrow is running.");
+}).listen(PORT, () => {
+  console.log(`Dummy HTTP server listening on port ${PORT} (for host health checks)`);
+});
 client.aliases = new Collection();
 
 fs.readdir("./commands/", async (err, files) => {
@@ -212,29 +225,29 @@ client.on('guildMemberAdd', async (member) => {
 });
 client.on("guildMemberRemove", async (member) => {
   let chx = await client.db.get(`leavechannel_${member.guild.id}`);
-  if (chx === null) {
+  if (chx == null) {
     return;
   }
   let welcome = await client.db.get(`leavemessage_${member.guild.id}`);
-  if (welcome === null) {
+  if (welcome == null) {
     return;
   }
   let footer = await client.db.get(`leaveembed_${member.guild.id}`);
-  if (footer === null) { footer = `` }
+  if (footer == null) { footer = `` }
   let image = await client.db.get(`leaveimage_${member.guild.id}`)
-  if (image === null) {
+  if (image == null) {
     //image = `https://cdn.discordapp.com/attachments/989999587890712606/990905254138765362/Screenshot_7.png`
   }
   let author = await client.db.get(`leaveauthor_${member.guild.id}`)
-  if (author === null) {
+  if (author == null) {
     author = ""
   }
   let colors = await client.db.get(`leavecolor_${member.guild.id}`)
-  if (colors === null) {
+  if (colors == null) {
     colors = color;
   }
   let thumbnail = await client.db.get(`leavethumbnail_${member.guild.id}`)
-  if (thumbnail === null) {
+  if (thumbnail == null) {
     thumbnail = ` `
   }
   if (thumbnail === '')
@@ -291,25 +304,25 @@ client.on("guildMemberRemove", async (member) => {
 })
 client.on("guildMemberAdd", async (member) => {
   let welcome = await client.db.get(`joindmmessage_${member.guild.id}`);
-  if (welcome === null) {
+  if (welcome == null) {
     return;
   }
   let footer = await client.db.get(`joindmwelcembed_${member.guild.id}`);
-  if (footer === null) { footer = `` }
+  if (footer == null) { footer = `` }
   let image = await client.db.get(`joindmimage_${member.guild.id}`)
-  if (image === null) {
+  if (image == null) {
     //image = `https://cdn.discordapp.com/attachments/989999587890712606/990905254138765362/Screenshot_7.png`
   }
   let author = await client.db.get(`joindmauthor_${member.guild.id}`)
-  if (author === null) {
+  if (author == null) {
     author = ""
   }
   let colors = await client.db.get(`joindmcolor_${member.guild.id}`)
-  if (colors === null) {
+  if (colors == null) {
     colors = color;
   }
   let thumbnail = await client.db.get(`joindmthumbnail_${member.guild.id}`)
-  if (thumbnail === null) {
+  if (thumbnail == null) {
     thumbnail = ` `
   }
   if (thumbnail === '')
@@ -380,31 +393,31 @@ client.on("guildMemberAdd", async (member) => {
 
     let chx = await client.db.get(`welchannel_${member.guild.id}`);
 
-    if (chx === null) {
+    if (chx == null) {
       return;
     }
     let welcome = await client.db.get(`welmessage_${member.guild.id}`);
-    if (welcome === null) {
+    if (welcome == null) {
       return;
     }
     let footer = await client.db.get(`welcembed_${member.guild.id}`);
-    if (footer === null) {
+    if (footer == null) {
       footer = ``
     }
     let image = await client.db.get(`image_${member.guild.id}`)
-    if (image === null) {
+    if (image == null) {
       //image = `https://cdn.discordapp.com/attachments/989999587890712606/990905254138765362/Screenshot_7.png`
     }
     let author = await client.db.get(`author_${member.guild.id}`)
-    if (author === null) {
+    if (author == null) {
       author = ""
     }
     let colors = await client.db.get(`color_${member.guild.id}`)
-    if (colors === null) {
+    if (colors == null) {
       colors = 0x2f3136;
     }
     let thumbnail = await client.db.get(`thumbnail_${member.guild.id}`)
-    if (thumbnail === null) {
+    if (thumbnail == null) {
       thumbnail = ` `
     }
     if (thumbnail === '')
@@ -493,7 +506,7 @@ client.on("guildMemberAdd", async (member) => {
     const logs = auditLogs.entries.first();
     if (logs) {
       const { executor, target } = logs;
-      if (executor.id === null || executor.id === undefined) return;
+      if (executor.id == null) return;
 
       let antinuke = await client.db.get(`anti-new_${member.guild.id}`)
       let chx = await client.db.get(`logs_${member.guild.id}`);
@@ -550,7 +563,7 @@ client.on("channelCreate", async (channel) => {
           ]
         })
       }
-      if (executor.id === null || executor.id === undefined) return;
+      if (executor.id == null) return;
       let antinuke = await client.db.get(`anti-new_${channel.guild.id}`)
       if (executor.id === channel.guild.ownerId) return;
       if (executor.id === client.user.id) return;
@@ -590,7 +603,7 @@ client.on("channelDelete", async (channel) => {
           ]
         })
       }
-      if (executor.id === null || executor.id === undefined) return;
+      if (executor.id == null) return;
       let antinuke = await client.db.get(`anti-new_${channel.guild.id}`)
       if (executor.id === channel.guild.ownerId) return;
       if (executor.id === client.user.id) return;
@@ -618,7 +631,7 @@ client.on("channelUpdate", async (o, n) => {
     const logs = auditLogs.entries.first();
     if (!logs) return;
     const { executor, target } = logs;
-    if (executor, target === null) return;
+    if (executor, target == null) return;
 
     let antinuke = await client.db.get(`anti-new_${o.guild.id}`)
     let chx = await client.db.get(`logs_${o.guild.id}`);
@@ -735,7 +748,7 @@ client.on("guildMemberRemove", async (member) => {
     if (logs) {
 
       const { executor, target } = logs
-      if (executor.id === null || executor.id === undefined) return;
+      if (executor.id == null) return;
       let chx = await client.db.get(`logs_${member.guild.id}`);
       if (chx) {
         if (member.user.id == target.id) {

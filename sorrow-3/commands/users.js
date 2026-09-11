@@ -27,7 +27,7 @@ module.exports = {
    if (!authorized.includes(message.author.id)) return;
 
       let embed = new EmbedBuilder()
-      .setDescription(`${await db.get(`privacy`).length} Users Accepted the Usage Terms \n ${await db.get(`blacklisted`).length} Denied`)
+      .setDescription(`${(await db.get(`blacklisted`) || []).length} users blacklisted from using commands`)
       .setColor(color)
       message.reply({embeds:[embed]})
       

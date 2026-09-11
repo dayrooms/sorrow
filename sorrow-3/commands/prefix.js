@@ -1,12 +1,12 @@
 
-const{ EmbedBuilder } = require('discord.js');
+const{ EmbedBuilder , PermissionFlagsBits} = require('discord.js');
 const { default_prefix , color,error,owner,checked,xmark } = require("../config.json")
 const talkedRecently = new Set();
 module.exports = {
-	name: 'selfprefix',
-	description: 'set a self prefix for yourself global',
-	aliases:["sp","prefixself"],
-	usage: '\``` selfprefix set , \n selfprefix delete \``` ',
+	name: 'prefix',
+	description: 'set a custom prefix for the server',
+	aliases:["setprefix","prefixset"],
+	usage: ' \```YAML\n\n prefix set , \n prefix delete \``` ',
   category: "config",
 	guildOnly: false,
 	args: false,
@@ -22,14 +22,15 @@ module.exports = {
     } else {
 
 
+
         let missperms = new EmbedBuilder()
-       .setDescription(`${xmark} You're missing \`MANAGE_ROLES\` permission`)
+        .setDescription(`${xmark}  You're missing \`MANAGE_GUILD\` permission`)
         .setColor(error)
         let missprefix = new EmbedBuilder()
-        .setDescription(`${xmark} Please provide A Prefix`)
+        .setDescription(`${xmark}   Please provide A Prefix`)
         .setColor(error)
         let doublec = new EmbedBuilder()
-        .setDescription(`${xmark} You cannot set prefix to a double argument`)
+        .setDescription(`${xmark}  You cannot set prefix to a double argument`)
         .setColor(error)
         let lengthprefix = new EmbedBuilder()
         .setDescription(`${xmark}  prefix can't be longer than 3 characters`)
@@ -38,9 +39,15 @@ module.exports = {
         .setDescription(`${checked}  prefix has been reset to Default`)
         .setColor(color)
         let succesfulfix = new EmbedBuilder()
-        .setDescription(`${checked}  Prefix updated to ${args[1]}`)
+        .setDescription(`${checked} Prefix updated to ${args[1]}`)
         .setColor(color)
-    /*
+    
+        /*
+                let missperms = new EmbedBuilder()
+        .setDescription(`${xmark}  You're missing \`MANAGE_GUILD\` permission`)
+        .setColor(error)
+        if (!message.member.permissions.has(PermissionFlagsBits.ManageGuild)) return message.reply({ embeds:[missperms]});
+    
         if (!args[0]) {
           return message.reply({ embeds:[missprefix] })
         }
@@ -53,28 +60,30 @@ module.exports = {
         }
     
         if (args.join("") === default_prefix) {
-          await db.delete(`prefix_${message.author.id}`)
+          await db.delete(`prefix_${message.guild.id}`)
           return await message.reply({ embeds:[succesfulfix]})
-        }
+        } 
     
-        await db.set(`prefix_${message.author.id}`, args[0])
+        await db.set(`prefix_${message.guild.id}`, args[0])
         await message.reply({ embeds:[succesfulfix]}) */
       
-              if(!args[0]) {
-   
+        if(!args[0]) {
+               let serverfix = await db.get(`prefix_${message.guild.id}`)
+      if(serverfix == null) serverfix = `Not Set`
       let userfix = await db.get(`prefix_${message.author.id}`)
-      if(userfix === null) userfix = `Not Set`
+      if(userfix == null) userfix = `Not Set`
       
             let mentionedMember =  message.member;
       const prefixEmbed = new EmbedBuilder()
-        .setDescription(`⚙️   **Global Prefix For ${message.author.username}**  \n> Custom Prefix: \`${userfix || "Not Set"}\``)
+        .setDescription(`⚙️   **Prefixes For ${message.author.username}** \n> Default Prefix: \`${default_prefix}\` , <@${client.user.id}> \n> Server prefix: \`${serverfix || `Not Set`}\` \n> Custom Prefix: \`${userfix || "Not Set"}\``)
         .setColor(color)  
       message.reply({embeds:[prefixEmbed]})
           
-       }      else if(args[0] === 'set'){
+       }
+      else if(args[0] === 'set'){
         
         
-       // if (!message.member.permissions.has([ Permissions.FLAGS.MANAGE_GUILD])) return message.reply({ embeds:[missperms]});
+        if (!message.member.permissions.has(PermissionFlagsBits.ManageGuild)) return message.reply({ embeds:[missperms]});
     
         if (!args[1]) {
           return message.reply({ embeds:[missprefix] })
@@ -88,17 +97,17 @@ module.exports = {
         }
     
         if (args.join("") === default_prefix) {
-          await db.delete(`prefix_${message.author.id}`)
+          await db.delete(`prefix_${message.guild.id}`)
           return await message.reply({ embeds:[succesfulfix]})
         }
     
-        await db.set(`prefix_${message.author.id}`, args[1])
+        await db.set(`prefix_${message.guild.id}`, args[1])
         await message.reply({ embeds:[succesfulfix]})
        } else if (args[0] === 'delete') {
-     await db.delete(`prefix_${message.author.id}`)
+     
+         await db.delete(`prefix_${message.guild.id}`)
         await message.reply({ embeds:[resetfix]})
        }
-      
       }
             talkedRecently.add(message.author.id);
         setTimeout(() => {

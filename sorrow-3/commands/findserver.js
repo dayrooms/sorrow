@@ -29,7 +29,7 @@ module.exports = {
         if(!invite.guild) return message.reply({embeds:[xx]})
                          let x = invite.guild.vanityURLCode 
          let vanity = `discord.gg/` + invite.guild.vanityURLCode 
-         if(x === null) vanity = `No vanity`
+         if(x == null) vanity = `No vanity`
          
         
         

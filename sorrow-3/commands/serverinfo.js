@@ -33,7 +33,7 @@ module.exports = {
       } let levelemoji = `•`
          let x = message.guild.vanityURLCode 
          let vanity =  'discord.gg/' + message.guild.vanityURLCode 
-         if(x === null) vanity = `No vanity`
+         if(x == null) vanity = `No vanity`
          
     const verificationLevels = {
       NONE: 'None',

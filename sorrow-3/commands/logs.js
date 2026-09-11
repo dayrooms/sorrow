@@ -17,7 +17,7 @@ module.exports = {
     const db = client.db;
        /*if(args[0]) {
         let chx = await db.get(`antinukelogs_${message.guild.id}`);
-        if (chx === null) {
+        if (chx == null) {
           return message.channel.send({ content:`There is no antinukelogs channel set`})
         }
         else return message.channel.send({content:`antinukelogs is set to <#${chx}>`})
@@ -55,12 +55,12 @@ module.exports = {
             await message.channel.send({content:`Set the logs channel to ${channel}`})
           }  else if (args[0] == 'test') {
             let chx = await db.get(`logs_${message.guild.id}`);
-            if (chx === null) {
+            if (chx == null) {
               return message.channel.send({ content:`There is no logs channel set`})
             }
             client.channels.cache.get(chx).send({content:`${message.author} hi`})
             message.channel.send({ content:`Tested logs in <#` + chx + `>` })
-            if (chx === null) {
+            if (chx == null) {
               return message.channel.send({ content:`There is no logs channel set`})
             }
           }else if (args[0] == 'clear') {

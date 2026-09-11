@@ -50,9 +50,9 @@ module.exports = {
       else if(args[0] == 'stats'){
              let chx = await db.get(`boostchan_${message.guild.id}`);
       if (chx) chx = `<#${chx}>`
-      else if (chx === null) chx = `Not Set`
+      else if (chx == null) chx = `Not Set`
             let welcome = await db.get(`boostmsg_${message.guild.id}`)
-      if (welcome === null)   welcome = 'Not Set'
+      if (welcome == null)   welcome = 'Not Set'
               let stats = new EmbedBuilder()
       .setDescription(`👋 ${message.guild.name} Booster Stats `)
       .setColor("#f47fff")

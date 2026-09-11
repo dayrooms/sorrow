@@ -28,9 +28,9 @@ module.exports = {
          if(!mentionedMember) {
    
    let xp = await db.get(`xp_${message.guild.id}_${message.author.id}`)
-   if(xp === null) xp = 0
+   if(xp == null) xp = 0
    let ranks = await db.get(`level_${message.guild.id}_${message.author.id}`)
-   if(!ranks && ranks === null) ranks = 1
+   if(!ranks && ranks == null) ranks = 1
    let req = 100
    if(ranks === 0) req = 500
    if(ranks === 1) req = 1000
@@ -109,9 +109,9 @@ rank.build()
    
  }else {
    let xp = await db.get(`activity_${message.guild.id}_${mentionedMember.user.id}`)
-   if(xp === null) xp = 0
+   if(xp == null) xp = 0
    let ranks = await db.get(`level_${message.guild.id}_${mentionedMember.user.id}`)
-   if(!ranks && ranks === null) ranks = 1
+   if(!ranks && ranks == null) ranks = 1
       let req = 100
       if(ranks === 0) req = 500
       if(ranks === 1) req = 1000
