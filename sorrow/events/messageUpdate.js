@@ -1,21 +1,19 @@
 const { EmbedBuilder,AttachmentBuilder } = require("discord.js");
 const { default_prefix ,color,error,owner } = require("../config.json")
 const ms = require('moment');
-const client = require('../index')
 
 module.exports = {
   event: "messageUpdate",
-  execute: async (oldMessage,newMessage,client,args) => {
+  execute: async (oldMessage,newMessage,client) => {
     const db = client.db;
+    if (newMessage.partial) return;
     if(newMessage.author.bot)return;
   if(newMessage.content.includes('https://')) return;
     //if(message.author.id === '') return;
     //console.log(message.attachments.first().proxyURL)
  if (newMessage.attachments.size > 0) {
  let image = newMessage.attachments.first().proxyURL; 
-    if (newMessage.author.bot) return;
-  if (newMessage.partial) return
-        if (message.author) {
+        if (newMessage.author) {
       await db.set(`editsniped${newMessage.channel.id}`, {
         content: newMessage.content,
         author: newMessage.author.tag,
@@ -41,15 +39,14 @@ module.exports = {
    let image = newMessage.attachments.first() ? newMessage.attachments.first().proxyURL : null
     let embed = new EmbedBuilder()
 
-     .setDescription(`**Mod Logs** 🔨  \n\n ↳ Message Deleted by ${newMessage.author.tag} ↳ \n `+' \```' + newMessage.content + '\```  \n  \```' + oldMessage.content + '\``` ')
+     .setDescription(`**Mod Logs** 🔨  \n\n ↳ Message Edited by ${newMessage.author.tag} ↳ \n `+' \```' + newMessage.content + '\```  \n  \```' + oldMessage.content + '\``` ')
 
     .setColor(color)
-   .setImage(message.attachments.first().proxyURL)
-    message.guild.channels.cache.get(chx).send({embeds:[embed]})
+   .setImage(newMessage.attachments.first().proxyURL)
+    newMessage.guild.channels.cache.get(chx).send({embeds:[embed]})
 
-}//message
+}
  } else {
-     if (newMessage.partial) return
         if (newMessage.author) {
       await db.set(`editsniped${newMessage.channel.id}`, {
         content: newMessage.content,

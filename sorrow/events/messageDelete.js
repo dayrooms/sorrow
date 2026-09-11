@@ -5,8 +5,9 @@ const ms = require('moment');
 
 module.exports = {
   event: "messageDelete",
-  execute: async (message, guild,client,args) => {
+  execute: async (message, client) => {
     const db = client.db;
+    if (message.partial) return;
     if(message.author.bot)return;
     if(message.content.includes('https://')) return;
     if(message.author.id === '') return;

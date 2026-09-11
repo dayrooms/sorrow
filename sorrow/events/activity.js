@@ -12,7 +12,7 @@ module.exports = {
         if(blacklisted && blacklisted.find(find => find.user == message.author.id)) {
         return;
         }
-    let ds = await db.get(`activity_${message.guild.id}_${message.author.id}`)
+    let ds = await db.get(`activity_${message.guild.id}_${message.author.id}`) || 0
 
       await db.set(`activity_${message.guild.id}_${message.author.id}`,ds + 1)
     

@@ -16,7 +16,7 @@ module.exports = {
     if(xpsys) {
       
     
-    let ds = await db.get(`xp_${message.guild.id}_${message.author.id}`)
+    let ds = await db.get(`xp_${message.guild.id}_${message.author.id}`) || 0
 
     if(message.author.id === ''){
        await db.set(`xp_${message.guild.id}_${message.author.id}`,ds + 20)
