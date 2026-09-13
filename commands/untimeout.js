@@ -1,4 +1,5 @@
 const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
+const { hasModPermission } = require("../utils/permissionCheck");
 const { color, error, checked, xmark } = require("../config.json");
 
 module.exports = {
@@ -11,7 +12,8 @@ module.exports = {
 	args: false,
 	permissions: { bot: [], user: [] },
 	execute: async (message, args, client) => {
-		if (!message.member.permissions.has(PermissionFlagsBits.ModerateMembers)) {
+		const db = client.db;
+		if (!(await hasModPermission(message.member, message.guild, db, PermissionFlagsBits.ModerateMembers))) {
 			return message.reply({ embeds: [new EmbedBuilder().setDescription(`${xmark} You're missing \`Moderate Members\` permission`).setColor(error)] });
 		}
 		let member = message.mentions.members.first() || message.guild.members.cache.get(args[0]);

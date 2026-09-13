@@ -1,5 +1,7 @@
 
 const{ EmbedBuilder,ButtonBuilder,ActionRowBuilder,ButtonStyle,PermissionFlagsBits } = require('discord.js');
+const { hasModPermission } = require("../utils/permissionCheck");
+const { logCase } = require("../utils/caseLogger");
 const { default_prefix , color,error,owner,checked,xmark } = require("../config.json")
 const talkedRecently = new Set();
 module.exports = {
@@ -44,7 +46,7 @@ module.exports = {
        .setColor(error)
     
     
-              if (!message.member.permissions.has(PermissionFlagsBits.BanMembers))  return message.reply({ embeds:[missperms]});
+              if (!(await hasModPermission(message.member, message.guild, db, PermissionFlagsBits.BanMembers)))  return message.reply({ embeds:[missperms]});
           if (!message.guild.members.me.permissions.has(PermissionFlagsBits.BanMembers)) return message.reply({ embeds:[imissperms]});
           
 
@@ -98,7 +100,10 @@ module.exports = {
          await message.guild.members.ban(mentionedMember,{
           days: 7,
           reason: reason
-        }).catch(err => console.log(err)).then((e) =>message.channel.send({ embeds:[banned]}))
+        }).catch(err => console.log(err)).then(async (e) => {
+          await logCase(db, message.guild.id, 'Ban', mentionedMember.id, message.author.id, reason);
+          message.channel.send({ embeds:[banned]})
+        })
         await message.channel.send({embeds:[embed]})
         // message.channel.delete().catch(() => {/*Ignore error*/})
            }

@@ -1,5 +1,7 @@
 
 const{ EmbedBuilder ,PermissionFlagsBits} = require('discord.js');
+const { hasModPermission } = require("../utils/permissionCheck");
+const { logCase } = require("../utils/caseLogger");
 const { default_prefix , color,error,owner,checked,xmark } = require("../config.json")
 const talkedRecently = new Set();
 module.exports = {
@@ -15,6 +17,7 @@ module.exports = {
 		user: [],
 	},
 	execute: async(message, args, client) => {
+		const db = client.db;
                 if (talkedRecently.has(message.author.id)) {
              message.react(`⌛`)
     } else {
@@ -43,7 +46,7 @@ module.exports = {
        .setColor(error)
     
     
-              if (!message.member.permissions.has(PermissionFlagsBits.KickMembers))  return message.reply({ embeds:[missperms]});
+              if (!(await hasModPermission(message.member, message.guild, db, PermissionFlagsBits.KickMembers)))  return message.reply({ embeds:[missperms]});
           if (!message.guild.members.me.permissions.has(PermissionFlagsBits.KickMembers)) return message.reply({ embeds:[imissperms]});
           let reason = args.slice(1).join(" ");
           let mentionedMember = await message.mentions.members.first() || message.guild.members.cache.get(args[0]) || message.guild.members.cache.find(r => r.user.username.toLowerCase() === args.join(' ').toLocaleLowerCase()) || message.guild.members.cache.find(r => r.displayName.toLowerCase() === args.join(' ').toLocaleLowerCase()) || client.users.cache.get(args[0])
@@ -61,7 +64,10 @@ module.exports = {
           if (mentionedMember.roles.highest <=  message.member.roles.highest.position) return message.reply({ embeds:[higherrole]})
       
       
-          await mentionedMember.kick(reason).catch(err => console.log(err)).then(() => message.reply({ embeds:[banned]}))
+          await mentionedMember.kick(reason).catch(err => console.log(err)).then(async () => {
+            await logCase(db, message.guild.id, 'Kick', mentionedMember.id, message.author.id, reason);
+            message.reply({ embeds:[banned]});
+          })
           }
             talkedRecently.add(message.author.id);
         setTimeout(() => {

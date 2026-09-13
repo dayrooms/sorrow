@@ -62,7 +62,13 @@ module.exports = {
     if (prefix == null) prefix = default_prefix;
     if (!message.content.startsWith(message.content.match(new RegExp(`^<@!?(${client.user.id})>`,"gi")) || prefix || default_prefix) || message.author.bot) return;
     const args = message.content.slice(prefix.length).split(/ +/);
-    const commandName = args.shift().toLowerCase();
+    let commandName = args.shift().toLowerCase();
+
+    // Resolve server-defined custom aliases (from the ;alias command) before
+    // falling back to a command's own built-in name/aliases.
+    const customAliases = await db.get(`customaliases_${message.guild.id}`) || {};
+    if (customAliases[commandName]) commandName = customAliases[commandName];
+
     const command =
       client.commands.get(commandName) ||
       client.commands.find(
@@ -111,6 +117,10 @@ module.exports = {
         return;
       }
       let binds = await db.get(`commandbinds_${message.guild.id}`) || {};
+      let ignoredList = await db.get(`ignored_${message.guild.id}`) || [];
+      if (ignoredList.includes(message.author.id) || ignoredList.includes(message.channel.id) || message.member.roles.cache.some(r => ignoredList.includes(r.id))) {
+        return;
+      }
       let requiredRole = binds[command.name];
       if (requiredRole && !message.member.permissions.has(PermissionFlagsBits.Administrator) && !message.member.roles.cache.has(requiredRole)) {
         return message.reply({ embeds: [{ description: `❌ This command is restricted to <@&${requiredRole}>`, color: error }] });

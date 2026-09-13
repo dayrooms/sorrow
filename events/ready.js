@@ -44,5 +44,33 @@ module.exports = {
     };
     checkTempbans();
     setInterval(checkTempbans, 60000);
+
+    // Temprole checker — removes temporary roles once they expire
+    const checkTemproles = async () => {
+      try {
+        const db = client.db;
+        let temproles = await db.get(`temproles`) || [];
+        if (!temproles.length) return;
+
+        const now = Date.now();
+        const stillActive = [];
+        for (const entry of temproles) {
+          if (entry.expiresAt <= now) {
+            const guild = client.guilds.cache.get(entry.guildId);
+            if (guild) {
+              const member = await guild.members.fetch(entry.userId).catch(() => null);
+              if (member) await member.roles.remove(entry.roleId).catch(() => {});
+            }
+          } else {
+            stillActive.push(entry);
+          }
+        }
+        await db.set(`temproles`, stillActive);
+      } catch (err) {
+        console.error("Temprole checker error:", err);
+      }
+    };
+    checkTemproles();
+    setInterval(checkTemproles, 60000);
   },
 };

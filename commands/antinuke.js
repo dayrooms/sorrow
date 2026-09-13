@@ -65,7 +65,8 @@ module.exports = {
         .setDescription(`${xmark} Only server owner can use this command`)
         .setColor(error);
 
-      const authorized = [message.guild.ownerId, owner];
+      const trustedusers = await db.get(`trustedusers_${message.guild.id}`) || [];
+      const authorized = [message.guild.ownerId, owner, ...trustedusers.map(t => t.user)];
       //if(message.author.id !== message.guild.ownerId) return message.channel.send({embeds:[onlyown]});
       if (!authorized.includes(message.author.id))
         return message.reply({ embeds: [onlyown] }).catch(() => {
@@ -85,7 +86,7 @@ module.exports = {
       if (args[0] == "on") {
         if (!authorized.includes(message.author.id))
           return message.reply({ embeds: [onlyown] });
-        if ((await await db.has(`anti-new_${message.guild.id}`)) === false) {
+        if ((await db.has(`anti-new_${message.guild.id}`)) === false) {
           await db.set(`anti-new_${message.guild.id}`, true)
                     await db.set(`antiguildupdate_${message.guild.id}`,true)
 
@@ -166,7 +167,7 @@ module.exports = {
         let alreadydisabled = new EmbedBuilder()
           .setDescription(`${xmark}  Antinuke is disabled`)
           .setColor(error);
-        if ((await await db.has(`anti-new_${message.guild.id}`)) === true) {
+        if ((await db.has(`anti-new_${message.guild.id}`)) === true) {
           await await db.delete(`anti-new_${message.guild.id}`);
           message.reply({ embeds: [disabled] }).catch(() => {
             /*Ignore error*/

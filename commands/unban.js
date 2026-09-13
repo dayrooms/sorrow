@@ -1,5 +1,6 @@
 
 const{ EmbedBuilder, PermissionFlagsBits  } = require('discord.js');
+const { hasModPermission } = require("../utils/permissionCheck");
 const { default_prefix , color,error,owner,checked,xmark } = require("../config.json")
 const talkedRecently = new Set();
 module.exports = {
@@ -15,6 +16,7 @@ module.exports = {
 		user: [],
 	},
 	execute: async(message, args, client) => {
+		const db = client.db;
                 if (talkedRecently.has(message.author.id)) {
              message.react(`⌛`)
     } else {
@@ -37,7 +39,7 @@ module.exports = {
        .setDescription(`${checked} Succesfully Unbanned`)
        .setColor(color)
   
-        if (!message.member.permissions.has(PermissionFlagsBits.BanMembers))  return message.reply({ embeds:[missperms]});
+        if (!(await hasModPermission(message.member, message.guild, db, PermissionFlagsBits.BanMembers)))  return message.reply({ embeds:[missperms]});
         if (!message.guild.members.me.permissions.has(PermissionFlagsBits.BanMembers)) return message.reply({ embeds:[imissperms]});
     
           const ID = args[0];

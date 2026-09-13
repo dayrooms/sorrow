@@ -1,4 +1,6 @@
 const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
+const { hasModPermission } = require("../utils/permissionCheck");
+const { logCase } = require("../utils/caseLogger");
 const { color, error, checked, xmark } = require("../config.json");
 
 module.exports = {
@@ -12,7 +14,7 @@ module.exports = {
 	permissions: { bot: [], user: [] },
 	execute: async (message, args, client) => {
 		const db = client.db;
-		if (!message.member.permissions.has(PermissionFlagsBits.ModerateMembers)) {
+		if (!(await hasModPermission(message.member, message.guild, db, PermissionFlagsBits.ModerateMembers))) {
 			return message.reply({ embeds: [new EmbedBuilder().setDescription(`${xmark} You're missing \`Moderate Members\` permission`).setColor(error)] });
 		}
 
@@ -25,6 +27,7 @@ module.exports = {
 		let warnings = await db.get(`warnings_${message.guild.id}_${member.id}`) || [];
 		warnings.push({ moderator: message.author.id, reason, timestamp: Date.now() });
 		await db.set(`warnings_${message.guild.id}_${member.id}`, warnings);
+		const caseId = await logCase(db, message.guild.id, 'Warn', member.id, message.author.id, reason);
 
 		const embed = new EmbedBuilder()
 			.setDescription(`${checked} Warned ${member} (${warnings.length} total warning${warnings.length === 1 ? '' : 's'})\n**Reason:** ${reason}`)

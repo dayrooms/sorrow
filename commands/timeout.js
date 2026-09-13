@@ -1,5 +1,7 @@
 
 const{ EmbedBuilder,PermissionFlagsBits } = require('discord.js');
+const { hasModPermission } = require("../utils/permissionCheck");
+const { logCase } = require("../utils/caseLogger");
 const { default_prefix , color,error,owner,checked,xmark } = require("../config.json")
 const talkedRecently = new Set();
 module.exports = {
@@ -15,6 +17,7 @@ module.exports = {
 		user: [],
 	},
 	execute: async(message, args, client) => {
+		const db = client.db;
                 if (talkedRecently.has(message.author.id)) {
              message.react(`⌛`)
     } else {
@@ -31,7 +34,7 @@ module.exports = {
        .setDescription(`${xmark} Can't mute a user with higher role than yours`)
        .setColor(error)
    
-        if (!message.member.permissions.has(PermissionFlagsBits.ManageMessages))  return message.reply({ embeds:[missperms]});
+        if (!(await hasModPermission(message.member, message.guild, db, PermissionFlagsBits.ManageMessages)))  return message.reply({ embeds:[missperms]});
         if (!message.guild.members.me.permissions.has(PermissionFlagsBits.ManageMessages)) return message.reply({ embeds:[imissperms]});
        
       
@@ -60,9 +63,11 @@ module.exports = {
       } else {
         if (member.isCommunicationDisabled()) {
           member.timeout(null);
+          await logCase(db, message.guild.id, 'Remove Timeout', member.id, message.author.id, null);
          message.reply({embeds:[done]})
         } else {
         member.timeout(10000000);
+        await logCase(db, message.guild.id, 'Timeout', member.id, message.author.id, null);
         message.reply({embeds:[one]})
         }
       }
