@@ -14,6 +14,7 @@ module.exports = {
   aliases: ["an"],
   usage: "  ```YAML\n\n antinuke [on/off] \n antinuke settings \n antinuke info \n antinuke settings \n antinuke enable {event_nane}``` ",
   category: "security",
+  hasOwnHelp: true,
   guildOnly: false,
   args: false,
   permissions: {

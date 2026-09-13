@@ -14,6 +14,7 @@ module.exports = {
   aliases: ["antinew"],
   usage: "\```YAML\n\n antialt [on/off] \```",
   category: "security",
+  hasOwnHelp: true,
   guildOnly: false,
   args: false,
   permissions: {

@@ -47,7 +47,7 @@ module.exports = {
  
         let embed = new EmbedBuilder()
         .setAuthor({name:`Sorrow Info`,iconURL:`${client.user.displayAvatarURL()}`})
-        .setDescription('\```' + `Developed and maintained by ${client.users.cache.get('').tag}` + '\```')
+        .setDescription('\```' + `Developed and maintained by <@${owner}>` + '\```')
         .addFields(
         {
           name:`Client`,

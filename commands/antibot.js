@@ -8,6 +8,7 @@ module.exports = {
 	aliases:[],
 	usage: ' \```antibot [on/off]\``` ',
   category: "security",
+  hasOwnHelp: true,
 	guildOnly: false,
 	args: false,
 	permissions: {

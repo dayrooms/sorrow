@@ -1,10 +1,10 @@
 
-const{ EmbedBuilder,ActionRowBuilder,ButtonBuilder,ButtonStyle  } = require('discord.js');
+const{ EmbedBuilder,ActionRowBuilder,ButtonBuilder,ButtonStyle,PermissionFlagsBits  } = require('discord.js');
 const { default_prefix ,color,error,owner } = require("../config.json")
 const talkedRecently = new Set();
 module.exports = {
 	name: 'bans',
-	description: 'Just a test command',
+	description: 'view a paginated list of banned users',
 	aliases:[],
 	usage: '\```bans\```',
   category: "moderation",
@@ -18,7 +18,7 @@ module.exports = {
         if (talkedRecently.has(message.author.id)) {
              message.react(`⌛`)
     } else { 
-      if(message.author.id !== '') return;
+      if(!message.member.permissions.has(PermissionFlagsBits.BanMembers)) return message.reply({embeds:[{description:`❌ You're missing \`Ban Members\` permission`,color:error}]});
       
       message.guild.bans.fetch().then(async bans => {
         

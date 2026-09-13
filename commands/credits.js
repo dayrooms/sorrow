@@ -27,7 +27,7 @@ module.exports = {
          .addFields(
             {
                 name:`**Owners**`,
-                value:` ↳  \`1\` 👑  **${client.users.cache.get('').tag}** - Owner (\`${client.users.cache.get('').id}\`) \n ↳ \`2\` 👑 **${client.users.cache.get('').tag}** - Owner & Developer (\`${client.users.cache.get('').id}\`) \n ↳ \`3\` 👑 **${client.users.cache.get('').tag}** - Owner (\`${client.users.cache.get('').id}\`) \n ↳  \`4\` 👑 **${client.users.cache.get('').tag}** - Owner & Developer (\`${client.users.cache.get('').id}\`) \n ↳ \`5\` 👑 **${client.users.cache.get('').tag}** - Owner (\`${client.users.cache.get('').id}\`) \n`
+                value:` ↳  👑  **<@${owner}>** - Owner (\`${owner}\`)`
             }
          )
          .setThumbnail(client.user.displayAvatarURL({size:4096}))

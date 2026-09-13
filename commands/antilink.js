@@ -15,6 +15,7 @@ module.exports = {
   usage:
     " ```YAML\n\n antilink [on/off], \n antilink whitelist, \n antilink blacklist, \n antilink whitelisted, ``` ",
     category: "security",
+  hasOwnHelp: true,
   guildOnly: false,
   args: false,
   permissions: {

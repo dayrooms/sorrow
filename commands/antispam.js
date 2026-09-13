@@ -8,6 +8,7 @@ module.exports = {
 	aliases:["spamfilter","as"],
 	usage: ' \```YAML\n\n antispam [on/off]\```',
   category: "security",
+  hasOwnHelp: true,
 	guildOnly: false,
 	args: false,
 	permissions: {

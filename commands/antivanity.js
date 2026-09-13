@@ -15,6 +15,7 @@ module.exports = {
   usage:
     " ```YAML\n\n antivanity [on/off], \n antivanity whitelist, \n antivanity blacklist, \n antivanity whitelisted, ``` ",
     category: "security",
+  hasOwnHelp: true,
   guildOnly: false,
   args: false,
   permissions: {

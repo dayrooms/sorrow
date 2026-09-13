@@ -35,10 +35,14 @@ function buildPages(client) {
   const pages = [];
   const PER_PAGE = 20;
 
+  // Page 0: category overview, Saturn-style
+  pages.push({ type: "overview", categories: categories.map(cat => ({ name: cat, count: byCategory[cat].length })) });
+
   for (const cat of categories) {
     const names = byCategory[cat].sort();
     for (let i = 0; i < names.length; i += PER_PAGE) {
       pages.push({
+        type: "category",
         category: cat,
         names: names.slice(i, i + PER_PAGE),
       });
@@ -49,6 +53,20 @@ function buildPages(client) {
 
 function renderPage(pages, index, client) {
   const page = pages[index];
+
+  if (page.type === "overview") {
+    const totalCommands = client.commands.size;
+    const list = page.categories
+      .map(c => `${CATEGORY_EMOJI[c.name] || "📦"} **${c.name.charAt(0).toUpperCase() + c.name.slice(1)}** — ${c.count} command${c.count === 1 ? "" : "s"}`)
+      .join("\n");
+    return new EmbedBuilder()
+      .setColor(color)
+      .setTitle(`${client.user.username} | All In One`)
+      .setDescription(`Prefix: \`${default_prefix}\`\nUse the buttons below to browse categories.\n${totalCommands} Commands\n\n${list}`)
+      .setThumbnail(client.user.displayAvatarURL())
+      .setFooter({ text: `Page ${index + 1}/${pages.length} · Use ${default_prefix}help <command> for details` });
+  }
+
   const emoji = CATEGORY_EMOJI[page.category] || "📦";
   const embed = new EmbedBuilder()
     .setColor(color)

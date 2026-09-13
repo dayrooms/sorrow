@@ -75,6 +75,24 @@ module.exports = {
       
     if (!command) return;
 
+    // Universal per-command help: "<command> help" or "<command> h" always
+    // works for every command, using its own usage/description — no need
+    // to hand-write help text into each individual command file. Commands
+    // that already implement their own richer help (hasOwnHelp: true) are
+    // left to handle it themselves instead of being shadowed here.
+    if (!command.hasOwnHelp && args[0] && (args[0].toLowerCase() === 'help' || args[0].toLowerCase() === 'h')) {
+      const helpEmbed = new EmbedBuilder()
+        .setColor(color)
+        .setTitle(`${command.name} — Help`)
+        .addFields(
+          { name: 'Description', value: command.description || 'No description', inline: false },
+          { name: 'Usage', value: `\`\`\`${command.usage || command.name}\`\`\``, inline: false },
+          { name: 'Aliases', value: command.aliases && command.aliases.length ? command.aliases.join(', ') : 'None', inline: true },
+          { name: 'Category', value: command.category || 'miscellaneous', inline: true }
+        );
+      return message.reply({ embeds: [helpEmbed] });
+    }
+
     if (command.guildOnly && message.channel.type !== ChannelType.GuildText) {
     return;
     
