@@ -22,6 +22,22 @@ module.exports = {
   },
   execute: async (message, args, client) => {
     const db = client.db;
+
+    // Unified whitelist + help subcommands (short and full forms both work)
+    const sub = args[0] ? args[0].toLowerCase() : null;
+    if (sub === 'whitelist' || sub === 'wl' || sub === 'add' || sub === 'remove') {
+      // bare 'add'/'remove' are shorthand for 'whitelist add'/'whitelist remove'
+      const delegateArgs = (sub === 'add' || sub === 'remove') ? args : args.slice(1);
+      const whitelistCmd = client.commands.get('whitelist');
+      return whitelistCmd.execute(message, delegateArgs, client);
+    }
+    if (sub === 'help' || sub === 'h') {
+      return message.reply({ embeds: [new EmbedBuilder()
+        .setTitle('🛡️ Antinuke Help')
+        .setDescription('`;antinuke on` / `;an on` — enable antinuke\n`;antinuke off` / `;an off` — disable antinuke\n`;antinuke whitelist add @user` / `;an wl add @user`\n`;antinuke whitelist remove @user` / `;an wl remove @user`\n`;antinuke settings` — view current config\n`;antinuke info` — feature overview')
+        .setColor(color)] });
+    }
+
     let emoji = `• `;
     if (talkedRecently.has(message.author.id)) {
       message.react(`⌛`);
@@ -69,7 +85,7 @@ module.exports = {
         if (!authorized.includes(message.author.id))
           return message.reply({ embeds: [onlyown] });
         if ((await await db.has(`anti-new_${message.guild.id}`)) === false) {
-          await await db.set(`anti-new_${message.guild.id}`, true)
+          await db.set(`anti-new_${message.guild.id}`, true)
                     await db.set(`antiguildupdate_${message.guild.id}`,true)
 
           await db.set(`antiwebhookdelete_${message.guild.id}`,true)

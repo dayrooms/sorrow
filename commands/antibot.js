@@ -16,6 +16,21 @@ module.exports = {
 	},
 	execute: async(message, args, client) => {
     const db = client.db;
+    // Unified whitelist + help subcommands (short and full forms both work)
+    const sub = args[0] ? args[0].toLowerCase() : null;
+    if (sub === 'whitelist' || sub === 'wl' || sub === 'add' || sub === 'remove') {
+      // bare 'add'/'remove' are shorthand for 'whitelist add'/'whitelist remove'
+      const delegateArgs = (sub === 'add' || sub === 'remove') ? args : args.slice(1);
+      const whitelistCmd = client.commands.get('whitelist');
+      return whitelistCmd.execute(message, delegateArgs, client);
+    }
+    if (sub === 'help' || sub === 'h') {
+      return message.reply({ embeds: [new EmbedBuilder()
+        .setTitle('🛡️ antibot Help')
+        .setDescription('`;antibot on` — enable\n`;antibot off` — disable\n`;antibot whitelist add @user` / `;antibot wl add @user`\n`;antibot whitelist remove @user` / `;antibot wl remove @user`')
+        .setColor(color)] });
+    }
+
         let emoji = `• `;
             if (talkedRecently.has(message.author.id)) {
              message.react(`⌛`)

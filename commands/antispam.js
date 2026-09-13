@@ -5,7 +5,7 @@ const talkedRecently = new Set();
 module.exports = {
 	name: 'antispam',
 	description: 'Quarantines every spammer',
-	aliases:[],
+	aliases:["spamfilter","as"],
 	usage: ' \```YAML\n\n antispam [on/off]\```',
   category: "security",
 	guildOnly: false,
@@ -16,6 +16,21 @@ module.exports = {
 	},
 	execute: async(message, args, client) => {
     const db = client.db;
+    // Unified whitelist + help subcommands (short and full forms both work)
+    const sub = args[0] ? args[0].toLowerCase() : null;
+    if (sub === 'whitelist' || sub === 'wl' || sub === 'add' || sub === 'remove') {
+      // bare 'add'/'remove' are shorthand for 'whitelist add'/'whitelist remove'
+      const delegateArgs = (sub === 'add' || sub === 'remove') ? args : args.slice(1);
+      const whitelistCmd = client.commands.get('whitelist');
+      return whitelistCmd.execute(message, delegateArgs, client);
+    }
+    if (sub === 'help' || sub === 'h') {
+      return message.reply({ embeds: [new EmbedBuilder()
+        .setTitle('🛡️ antispam Help')
+        .setDescription('`;antispam on` — enable\n`;antispam off` — disable\n`;antispam whitelist add @user` / `;antispam wl add @user`\n`;antispam whitelist remove @user` / `;antispam wl remove @user`')
+        .setColor(color)] });
+    }
+
         let emoji = `• `;
             if (talkedRecently.has(message.author.id)) {
              message.react(`⌛`)

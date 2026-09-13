@@ -5,7 +5,7 @@ const talkedRecently = new Set();
 module.exports = {
 	name: 'nuke',
 	description: 'deletes current channel and clones it',
-	aliases:["clone"],
+	aliases:["clone","nukechannel"],
 	usage: ' \```YAML\n\n nuke [#channel] \```',
   category: "moderation",
 	guildOnly: false,

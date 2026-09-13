@@ -11,7 +11,7 @@ const talkedRecently = new Set();
 module.exports = {
   name: "antialt",
   description: "kicks new accounts possibly alt accounts",
-  aliases: [],
+  aliases: ["antinew"],
   usage: "\```YAML\n\n antialt [on/off] \```",
   category: "security",
   guildOnly: false,
@@ -22,6 +22,21 @@ module.exports = {
   },
   execute: async (message, args, client) => {
     const db = client.db;
+    // Unified whitelist + help subcommands (short and full forms both work)
+    const sub = args[0] ? args[0].toLowerCase() : null;
+    if (sub === 'whitelist' || sub === 'wl' || sub === 'add' || sub === 'remove') {
+      // bare 'add'/'remove' are shorthand for 'whitelist add'/'whitelist remove'
+      const delegateArgs = (sub === 'add' || sub === 'remove') ? args : args.slice(1);
+      const whitelistCmd = client.commands.get('whitelist');
+      return whitelistCmd.execute(message, delegateArgs, client);
+    }
+    if (sub === 'help' || sub === 'h') {
+      return message.reply({ embeds: [new EmbedBuilder()
+        .setTitle('🛡️ antialt Help')
+        .setDescription('`;antialt on` — enable\n`;antialt off` — disable\n`;antialt whitelist add @user` / `;antialt wl add @user`\n`;antialt whitelist remove @user` / `;antialt wl remove @user`')
+        .setColor(color)] });
+    }
+
     let emoji = `• `;
     if (talkedRecently.has(message.author.id)) {
       message.react(`⌛`);

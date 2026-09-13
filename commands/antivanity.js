@@ -23,6 +23,21 @@ module.exports = {
   },
   execute: async (message, args, client) => {
     const db = client.db;
+    // Unified whitelist + help subcommands (short and full forms both work)
+    const sub = args[0] ? args[0].toLowerCase() : null;
+    if (sub === 'whitelist' || sub === 'wl' || sub === 'add' || sub === 'remove') {
+      // bare 'add'/'remove' are shorthand for 'whitelist add'/'whitelist remove'
+      const delegateArgs = (sub === 'add' || sub === 'remove') ? args : args.slice(1);
+      const whitelistCmd = client.commands.get('whitelist');
+      return whitelistCmd.execute(message, delegateArgs, client);
+    }
+    if (sub === 'help' || sub === 'h') {
+      return message.reply({ embeds: [new EmbedBuilder()
+        .setTitle('🛡️ antivanity Help')
+        .setDescription('`;antivanity on` — enable\n`;antivanity off` — disable\n`;antivanity whitelist add @user` / `;antivanity wl add @user`\n`;antivanity whitelist remove @user` / `;antivanity wl remove @user`')
+        .setColor(color)] });
+    }
+
     if (talkedRecently.has(message.author.id)) {
       message.react(`⌛`);
     } else {

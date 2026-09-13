@@ -1,4 +1,4 @@
-const { EmbedBuilder,ChannelType,MessageType } = require("discord.js");
+const { EmbedBuilder,ChannelType,MessageType,PermissionFlagsBits } = require("discord.js");
 const { default_prefix ,color,error,owner,xmark,checked } = require("../config.json")
 const axios = require('axios')
 module.exports = {
@@ -91,6 +91,11 @@ module.exports = {
       let blacklisted = await db.get(`blacklisted`)
       if(blacklisted && blacklisted.find(find => find.user == message.author.id)) {
         return;
+      }
+      let binds = await db.get(`commandbinds_${message.guild.id}`) || {};
+      let requiredRole = binds[command.name];
+      if (requiredRole && !message.member.permissions.has(PermissionFlagsBits.Administrator) && !message.member.roles.cache.has(requiredRole)) {
+        return message.reply({ embeds: [{ description: `❌ This command is restricted to <@&${requiredRole}>`, color: error }] });
       }
       let cp = await db.get(`commandsused`) || 0
       await db.set(`commandsused`, cp + 1)
