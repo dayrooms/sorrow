@@ -33,6 +33,7 @@ class Command {
     this.guildOnly = opts.guildOnly !== false;
     this.botPerms = opts.botPerms || [];
     this.subcommands = opts.subcommands || null;
+    this.help = opts.help || null; // { title, intro, subcommands: [{usage, desc}] }
     this.cooldown = opts.cooldown || 0; // ms
     this.run = opts.run;
     if (typeof this.run !== 'function') {

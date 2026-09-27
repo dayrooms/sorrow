@@ -10,6 +10,16 @@ module.exports = new Command({
   description: 'Automatically assign roles to new members (humans and bots).',
   permLevel: LEVELS.ADMIN,
   usage: 'add/remove/list/reset <role> [bots]',
+  help: {
+    title: 'Autorole',
+    intro: 'Automatically give roles to members when they join. Separate lists for humans and bots.',
+    subcommands: [
+      { usage: 'add <role> [bots]', desc: 'Add an autorole. Add the word `bots` to make it bot-only.' },
+      { usage: 'remove <role>', desc: 'Remove an autorole.' },
+      { usage: 'list', desc: 'Show all autoroles.' },
+      { usage: 'reset', desc: 'Clear all autoroles.' },
+    ],
+  },
   async run({ message, args, prefix, sub }) {
     const data = db.getSettings(message.guild.id, 'autorole', { humans: [], bots: [] });
 

@@ -17,6 +17,17 @@ function greetCommand(name, moduleKey, label, dm = false) {
     description: `Configure ${label} messages.`,
     permLevel: LEVELS.ADMIN,
     usage: 'add/edit/remove/list/test <...>',
+    help: {
+      title: `${label} messages`,
+      intro: `Set a ${label.toLowerCase()} message${dm ? ' sent to the member\'s DMs' : ' posted to a channel'}. Supports plain text or embed scripts with variables — see \`;variables\`.`,
+      subcommands: [
+        { usage: `add ${dm ? '' : '[#channel] '}<message>`, desc: `Set the ${label.toLowerCase()} message${dm ? '' : ' and channel'}.` },
+        { usage: 'edit <message>', desc: 'Update the message text.' },
+        { usage: 'test', desc: 'Send a test to preview it.' },
+        { usage: 'list', desc: 'View the current config.' },
+        { usage: 'remove', desc: `Remove the ${label.toLowerCase()} message.` },
+      ],
+    },
     async run({ message, args, prefix, sub }) {
       const data = db.getSettings(message.guild.id, moduleKey, { channel: null, message: null });
 

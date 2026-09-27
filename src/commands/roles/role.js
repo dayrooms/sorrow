@@ -14,6 +14,28 @@ module.exports = new Command({
   description: 'Manage server roles (add/remove/create/delete/edit/color/all/bots/humans...).',
   permLevel: LEVELS.MOD, // uses Manage Roles internally; MOD+manage roles fakeperm covered by check
   usage: '<member> <role> | <subcommand> ...',
+  help: {
+    title: 'Role management',
+    intro: 'Add/remove roles, create & edit roles, and run mass role operations. `;role @user @role` toggles a role on someone. Sorrow must be above the role it manages.',
+    subcommands: [
+      { usage: '<member> <role>', desc: 'Toggle one or more roles on a member (add if missing, remove if present). Comma-separate multiple.' },
+      { usage: 'add <member> <role>', desc: 'Add a role to a member.' },
+      { usage: 'remove <member> <role>', desc: 'Remove a role from a member.' },
+      { usage: 'create [color] [color2] <name>', desc: 'Create a new role, optionally with a color.' },
+      { usage: 'delete <role>', desc: 'Delete a role.' },
+      { usage: 'edit <role> <new name>', desc: 'Rename a role.' },
+      { usage: 'color <role> <hex>', desc: 'Set a role\'s color.' },
+      { usage: 'mentionable <role>', desc: 'Toggle whether the role can be pinged.' },
+      { usage: 'hoist <role>', desc: 'Toggle whether the role shows separately in the member list.' },
+      { usage: 'icon <role> <emoji/url>', desc: 'Set a role icon (needs the boost level).' },
+      { usage: 'all <role>', desc: 'Add a role to every human. `all remove <role>` removes it.' },
+      { usage: 'bots <role>', desc: 'Add a role to every bot. `bots remove <role>` removes it.' },
+      { usage: 'humans <role>', desc: 'Add a role to every human. `humans remove <role>` removes it.' },
+      { usage: 'has <haveRole> <giveRole>', desc: 'Give a role to everyone who has another role. `has remove ...` to remove.' },
+      { usage: 'restore <member>', desc: 'Restore roles a member had before they left/rejoined.' },
+      { usage: 'cancel', desc: 'Cancel a running mass-role operation.' },
+    ],
+  },
   botPerms: [PermissionFlagsBits.ManageRoles],
   async run({ client, message, args, prefix, sub }) {
     const me = message.guild.members.me;

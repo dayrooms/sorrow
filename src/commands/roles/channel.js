@@ -11,6 +11,16 @@ const channel = new Command({
   description: 'Manage server channels (create/remove/edit/sync).',
   permLevel: LEVELS.MOD,
   usage: 'create/remove/edit/sync <...>',
+  help: {
+    title: 'Channel management',
+    intro: 'Create, delete, edit and sync channels.',
+    subcommands: [
+      { usage: 'create <name>', desc: 'Create a text channel.' },
+      { usage: 'remove [channel]', desc: 'Delete a channel (current one if none given).' },
+      { usage: 'edit [channel] <new name>', desc: 'Rename a channel.' },
+      { usage: 'sync', desc: 'Sync this channel\'s permissions to its category.' },
+    ],
+  },
   botPerms: [PermissionFlagsBits.ManageChannels],
   async run({ message, args, prefix, sub }) {
     switch (sub) {

@@ -14,6 +14,26 @@ const command = new Command({
   description: 'Temporary voice channels.',
   permLevel: LEVELS.USER,
   usage: 'setup | config | reset | (owner) lock/unlock/ghost/name/limit/permit/reject/claim/transfer/kick',
+  help: {
+    title: 'Temporary voice channels',
+    intro: 'Join-to-create voice channels. An admin runs setup once; then anyone who joins the "Join to Create" channel gets their own temp channel with owner controls. Empty channels auto-delete.',
+    subcommands: [
+      { usage: 'setup', desc: 'Admin: create the category, join-to-create channel and control interface.' },
+      { usage: 'config', desc: 'Admin: view the current VoiceMaster setup.' },
+      { usage: 'reset', desc: 'Admin: tear it all down and remove tracked channels.' },
+      { usage: 'lock', desc: 'Owner: stop new people from joining your channel.' },
+      { usage: 'unlock', desc: 'Owner: allow people to join again.' },
+      { usage: 'ghost', desc: 'Owner: hide your channel from everyone.' },
+      { usage: 'unghost', desc: 'Owner: make your channel visible again.' },
+      { usage: 'name <new name>', desc: 'Owner: rename your channel.' },
+      { usage: 'limit <0-99>', desc: 'Owner: set a user limit (0 = unlimited).' },
+      { usage: 'permit <member>', desc: 'Owner: allow a specific member into your channel.' },
+      { usage: 'reject <member>', desc: 'Owner: kick and block a member from your channel.' },
+      { usage: 'claim', desc: 'Claim ownership when the owner has left.' },
+      { usage: 'transfer <member>', desc: 'Owner: give ownership to someone in your channel.' },
+      { usage: 'info', desc: 'Show info about your current channel.' },
+    ],
+  },
   async run({ client, message, args, prefix, sub }) {
     const adminSubs = ['setup', 'config', 'reset', 'sendinterface'];
     if (adminSubs.includes(sub)) {

@@ -11,6 +11,18 @@ module.exports = new Command({
   description: 'Highlight popular messages via star reactions.',
   permLevel: LEVELS.MOD,
   usage: 'add/remove/config/edit <...>',
+  help: {
+    title: 'Starboard',
+    intro: 'When a message gets enough star reactions, Sorrow reposts it to a starboard channel. Supports multiple boards with different emoji/thresholds.',
+    subcommands: [
+      { usage: 'add <#channel> [emoji] [threshold] [name]', desc: 'Create a starboard. e.g. `starboard add #starboard ⭐ 3 default`.' },
+      { usage: 'remove <name>', desc: 'Delete a starboard by name.' },
+      { usage: 'edit <name> threshold <n>', desc: 'Change a board\'s threshold or emoji.' },
+      { usage: 'ping <name>', desc: 'Toggle pinging the author when featured.' },
+      { usage: 'selfstar <name>', desc: 'Toggle whether self-reactions count.' },
+      { usage: 'config', desc: 'Show all configured starboards.' },
+    ],
+  },
   async run({ message, args, prefix, sub }) {
     const data = db.getSettings(message.guild.id, 'starboard', { boards: {} });
 

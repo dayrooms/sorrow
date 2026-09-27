@@ -20,6 +20,17 @@ module.exports = new Command({
   description: 'Configure server audit logging.',
   permLevel: LEVELS.ADMIN,
   usage: 'setup [#channel] | edit <event> <#channel> | events | config | reset',
+  help: {
+    title: 'Server audit logging',
+    intro: 'Log server events (message edits/deletes, joins/leaves, bans, role & channel changes, voice activity) to a channel. `;logging setup` routes everything to one channel; `edit` routes individual events.',
+    subcommands: [
+      { usage: 'setup [#channel]', desc: 'Enable logging and send all events to one channel (defaults to the current channel).' },
+      { usage: 'edit <event> <#channel>', desc: 'Route a single event type to its own channel.' },
+      { usage: 'events', desc: 'List every event you can log.' },
+      { usage: 'config', desc: 'Show the current logging configuration.' },
+      { usage: 'reset', desc: 'Turn off logging and clear its config.' },
+    ],
+  },
   async run({ message, args, prefix, sub }) {
     const cfg = db.getSettings(message.guild.id, 'logging', { channel: null, events: {} });
 

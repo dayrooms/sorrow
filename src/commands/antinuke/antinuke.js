@@ -58,6 +58,28 @@ module.exports = new Command({
   description: 'Protect your server with antinuke — detection, punishment, and restore.',
   permLevel: LEVELS.USER, // fine-grained checks happen inside per subcommand
   usage: '<subcommand>',
+  help: {
+    title: 'Server nuke protection',
+    intro: 'Watches your staff via the audit log, punishes attackers, and restores what they destroy. Put Sorrow at the top of the role list; the server owner can never be punished.',
+    subcommands: [
+      { usage: 'setup', desc: 'Enable antinuke with safe defaults (channel/role delete, ban, kick, webhook, bot-add, vanity) and set the log channel here. Best first step.' },
+      { usage: 'toggle', desc: 'Master on/off switch for the whole system.' },
+      { usage: '<module> <on/off> [ban/kick/strip] [threshold]', desc: 'Configure a module. e.g. `antinuke channeldelete on ban 3`. Modules: guildupdate, channelcreate/delete/update, rolecreate/delete/update, rolemember, ban, kick, prune, botadd, webhookcreate/delete/update, emoji, vanity.' },
+      { usage: 'perm <permission> <on/off> [strip/ban]', desc: 'Revert & punish dangerous permission grants. e.g. `antinuke perm administrator on ban`. Perms: administrator, manageguild, managechannels, manageroles, managewebhooks, manageexpressions, banmembers, kickmembers, moderatemembers, mentioneveryone.' },
+      { usage: 'botadd', desc: 'Toggle blocking ALL new bot joins outright.' },
+      { usage: 'logging #channel', desc: 'Set the channel where antinuke posts alerts.' },
+      { usage: 'dmlogs', desc: 'Toggle DM alerts to the server owner.' },
+      { usage: 'whitelist @user', desc: 'Toggle a user/bot as exempt (never triggers antinuke). Use for trusted bots & staff.' },
+      { usage: 'unwhitelist @user', desc: 'Remove someone from the whitelist.' },
+      { usage: 'admin @user', desc: 'Toggle an antinuke admin — can edit settings and is trusted. Owner only.' },
+      { usage: 'unadmin @user', desc: 'Revoke antinuke admin.' },
+      { usage: 'admins', desc: 'List all antinuke admins.' },
+      { usage: 'settings', desc: 'Show all modules, punishments, thresholds, log channel, whitelist & admin counts.' },
+      { usage: 'list', desc: 'Paginated list of every module plus the whitelist.' },
+      { usage: 'restore', desc: 'Rebuild recently deleted channels & roles from snapshots. Antinuke admin only.' },
+      { usage: 'reset', desc: 'Wipe all antinuke config to defaults. Owner only.' },
+    ],
+  },
   async run({ client, message, args, prefix }) {
     const sub = (args[0] || '').toLowerCase();
     const guildId = message.guild.id;
@@ -252,27 +274,8 @@ function noAdmin(message) {
 }
 
 function sendHelp(message, prefix) {
-  const e = base()
-    .setTitle('🛡️ Antinuke')
-    .setDescription(
-      [
-        'Antinuke watches your staff and stops malicious admins.',
-        '',
-        `**${prefix}antinuke setup** — enable with safe defaults`,
-        `**${prefix}antinuke toggle** — turn the whole system on/off`,
-        `**${prefix}antinuke <module> <on/off> [ban/kick/strip] [threshold]**`,
-        `**${prefix}antinuke perm <permission> <on/off> [strip/ban]**`,
-        `**${prefix}antinuke logging #channel** · **dmlogs**`,
-        `**${prefix}antinuke whitelist / unwhitelist @user**`,
-        `**${prefix}antinuke admin / unadmin @user**`,
-        `**${prefix}antinuke settings** · **list** · **admins**`,
-        `**${prefix}antinuke restore** — rebuild deleted channels/roles`,
-        `**${prefix}antinuke reset** — wipe config`,
-        '',
-        `Modules: ${Object.keys(an.MODULES).join(', ')}`,
-      ].join('\n')
-    );
-  return message.channel.send({ embeds: [e] });
+  const { renderCommandHelp } = require('../../utils/commandHelp');
+  return renderCommandHelp(message, module.exports, prefix, '🛡️');
 }
 
 function sendEditGuide(message, prefix, permsMode) {

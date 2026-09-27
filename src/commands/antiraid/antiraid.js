@@ -19,6 +19,27 @@ module.exports = new Command({
   description: 'Protect your server from raids: mass joins, new accounts, no-avatar accounts.',
   permLevel: LEVELS.USER,
   usage: '<subcommand>',
+  help: {
+    title: 'Raid & mass-join protection',
+    intro: 'Watches your front door: mass joins, brand-new/young accounts, and default-avatar accounts. Run setup for safe defaults, then tune each module. During a live raid use lockdown, raid, or recentban.',
+    subcommands: [
+      { usage: 'setup', desc: 'Enable antiraid with safe defaults (mass-join + new-account filters on) and set the log channel here.' },
+      { usage: 'toggle', desc: 'Master on/off switch for antiraid.' },
+      { usage: 'massjoin <on/off> [threshold] [windowSeconds] [kick/ban/lockdown]', desc: 'Trip when too many members join too fast. e.g. `antiraid massjoin on 10 10 lockdown` = 10 joins in 10s triggers a lockdown.' },
+      { usage: 'newaccounts <on/off> [minAge] [kick/ban]', desc: 'Punish accounts younger than a minimum age on join. e.g. `antiraid newaccounts on 7d kick`.' },
+      { usage: 'noavatar <on/off> [kick/ban]', desc: 'Punish members joining with a default (no) avatar.' },
+      { usage: 'lockdown <on/off>', desc: 'Manually lock or unlock every text channel (@everyone can\'t send).' },
+      { usage: 'raid <duration> <kick/ban> [reason]', desc: 'Punish everyone who joined within a recent window. e.g. `antiraid raid 10m ban` bans all who joined in the last 10 minutes.' },
+      { usage: 'recentban <amount> [reason]', desc: 'Ban the N most recent members to join.' },
+      { usage: 'logging #channel', desc: 'Set the antiraid alert channel.' },
+      { usage: 'whitelist @user', desc: 'Toggle a user as exempt from antiraid.' },
+      { usage: 'unwhitelist @user', desc: 'Remove someone from the antiraid whitelist.' },
+      { usage: 'admin @user', desc: 'Let a user manage antiraid settings. Owner only.' },
+      { usage: 'unadmin @user', desc: 'Revoke antiraid admin.' },
+      { usage: 'settings', desc: 'Show all antiraid modules, thresholds, lockdown state and whitelist count.' },
+      { usage: 'reset', desc: 'Wipe antiraid config to defaults. Owner only.' },
+    ],
+  },
   async run({ client, message, args, prefix }) {
     const sub = (args[0] || '').toLowerCase();
     const guildId = message.guild.id;
@@ -26,29 +47,10 @@ module.exports = new Command({
 
     switch (sub) {
       case '':
-      case 'help':
-        return message.channel.send({
-          embeds: [
-            base()
-              .setTitle('🚨 Antiraid')
-              .setDescription(
-                [
-                  'Antinuke watches your staff. Antiraid watches your front door.',
-                  '',
-                  `**${prefix}antiraid setup** — enable with safe defaults`,
-                  `**${prefix}antiraid toggle** — on/off`,
-                  `**${prefix}antiraid massjoin <on/off> [threshold] [window] [kick/ban/lockdown]**`,
-                  `**${prefix}antiraid newaccounts <on/off> [minAge] [kick/ban]**`,
-                  `**${prefix}antiraid noavatar <on/off> [kick/ban]**`,
-                  `**${prefix}antiraid lockdown <on/off>**`,
-                  `**${prefix}antiraid raid <duration> <kick/ban> [reason]** — punish recent joiners`,
-                  `**${prefix}antiraid recentban <amount> [reason]**`,
-                  `**${prefix}antiraid logging #channel** · **whitelist/unwhitelist @user**`,
-                  `**${prefix}antiraid admin/unadmin @user** · **settings** · **reset**`,
-                ].join('\n')
-              ),
-          ],
-        });
+      case 'help': {
+        const { renderCommandHelp } = require('../../utils/commandHelp');
+        return renderCommandHelp(message, module.exports, prefix, '🚨');
+      }
 
       case 'toggle': {
         if (!isOwner(message)) return owner(message);

@@ -12,6 +12,16 @@ const giveaway = new Command({
   description: 'Manage server giveaways.',
   permLevel: LEVELS.MOD,
   usage: 'start <duration> <winners> <prize> | end/reroll/list/cancel <messageId>',
+  help: {
+    title: 'Giveaways',
+    intro: 'Run button-entry giveaways. Members click to enter; Sorrow picks winners when the timer ends. Survives restarts.',
+    subcommands: [
+      { usage: 'start <duration> <winners> <prize>', desc: 'Start a giveaway. e.g. `giveaway start 1h 2 Nitro`.' },
+      { usage: 'end <messageId>', desc: 'End a giveaway early and draw winners now.' },
+      { usage: 'reroll <messageId>', desc: 'Pick a new winner from the entries.' },
+      { usage: 'cancel <messageId>', desc: 'Cancel a giveaway with no winners.' },
+    ],
+  },
   async run({ client, message, args, prefix, sub }) {
     switch (sub) {
       case 'start': {

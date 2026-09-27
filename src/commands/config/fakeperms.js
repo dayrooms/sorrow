@@ -13,6 +13,18 @@ module.exports = new Command({
   description: 'Grant bot-only permissions to roles/users without real Discord perms.',
   permLevel: LEVELS.GUILD_OWNER,
   usage: 'add/remove/list/reset/check/permissions <target> <perms>',
+  help: {
+    title: 'Fake (bot-only) permissions',
+    intro: 'Grant permissions that only apply to Sorrow\'s commands — a member can use bot moderation without holding the real Discord permission. Fake perms never affect native Discord actions, so they can\'t bypass antinuke.',
+    subcommands: [
+      { usage: 'add <role/user> <perms...>', desc: 'Grant fake perms. e.g. `fakeperms add @Mods banmembers kickmembers`.' },
+      { usage: 'remove <role/user> <perms...>', desc: 'Remove fake perms from a role or user.' },
+      { usage: 'check <role/user>', desc: 'Show the fake perms a role or user has.' },
+      { usage: 'list', desc: 'Show all fake-perm grants in the server.' },
+      { usage: 'permissions', desc: 'List every valid fake-permission keyword.' },
+      { usage: 'reset', desc: 'Clear all fake permissions.' },
+    ],
+  },
   async run({ message, args, prefix, sub }) {
     const data = db.getSettings(message.guild.id, 'fakeperms', { users: {}, roles: {} });
 

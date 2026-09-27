@@ -54,6 +54,22 @@ const levels = new Command({
   description: 'Manage the leveling system.',
   permLevel: LEVELS.ADMIN,
   usage: 'toggle/config/edit/setxp/addxp/removexp/setlevel/resetxp/reset/rewards',
+  help: {
+    title: 'Leveling system',
+    intro: 'Members earn XP for chatting and level up. Set role rewards per level. Use `;rank` to check a level and `;leaderboard` for the top members.',
+    subcommands: [
+      { usage: 'toggle', desc: 'Turn leveling on or off.' },
+      { usage: 'config', desc: 'Show leveling settings.' },
+      { usage: 'edit xp <amount>', desc: 'Set XP per message. Also: `edit cooldown <sec>`, `edit channel <#c>`, `edit announce <on/off>`.' },
+      { usage: 'rewards add <level> <role>', desc: 'Give a role at a level. `rewards remove <level>` removes it.' },
+      { usage: 'setxp <member> <amount>', desc: 'Set a member\'s XP.' },
+      { usage: 'addxp <member> <amount>', desc: 'Add XP to a member.' },
+      { usage: 'removexp <member> <amount>', desc: 'Remove XP from a member.' },
+      { usage: 'setlevel <member> <level>', desc: 'Set a member\'s level.' },
+      { usage: 'resetxp <member>', desc: 'Reset one member\'s XP and level.' },
+      { usage: 'reset', desc: 'Reset every member\'s level.' },
+    ],
+  },
   async run({ client, message, args, prefix, sub }) {
     const cfg = db.getSettings(message.guild.id, 'leveling', { enabled: false, perMessage: 15, cooldown: 60000, announce: true, channel: null, rewards: {} });
 

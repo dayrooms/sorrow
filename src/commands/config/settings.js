@@ -11,6 +11,15 @@ const settings = new Command({
   description: 'Configure core server settings (mute/jail roles, log/jail channels, defaults).',
   permLevel: LEVELS.ADMIN,
   usage: 'roles/channels/default ...',
+  help: {
+    title: 'Core server settings',
+    intro: 'Configure the roles and channels Sorrow uses for moderation. Run `;settings` alone to see the current overview.',
+    subcommands: [
+      { usage: 'roles mute <role>', desc: 'Set the mute role. `settings roles jail <role>` sets the jail role.' },
+      { usage: 'channels modlog <#channel>', desc: 'Set the mod-log channel. `settings channels jail <#channel>` sets the jail channel.' },
+      { usage: 'default banpurge <0-7>', desc: 'Default days of messages to delete when banning.' },
+    ],
+  },
   async run({ message, args, prefix, sub }) {
     const s = db.getSettings(message.guild.id, 'settings', {});
 

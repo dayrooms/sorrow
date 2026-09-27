@@ -77,6 +77,18 @@ const filter = new Command({
   description: 'Auto-moderate messages containing filtered words.',
   permLevel: LEVELS.ADMIN,
   usage: 'add/remove/list/reset/config/log <...>',
+  help: {
+    title: 'Word filter',
+    intro: 'Auto-delete messages containing filtered words (staff are exempt). Optionally log every catch to a channel.',
+    subcommands: [
+      { usage: 'add <word...>', desc: 'Add one or more words to the filter.' },
+      { usage: 'remove <word>', desc: 'Remove a word from the filter.' },
+      { usage: 'list', desc: 'Show all filtered words.' },
+      { usage: 'config', desc: 'Show the filter action and log channel.' },
+      { usage: 'log <#channel>', desc: 'Set (or clear) the channel where catches are logged.' },
+      { usage: 'reset', desc: 'Clear the entire filter.' },
+    ],
+  },
   async run({ message, args, prefix, sub }) {
     const data = db.getSettings(message.guild.id, 'filter', { words: [], logChannel: null, action: 'delete' });
     switch (sub) {

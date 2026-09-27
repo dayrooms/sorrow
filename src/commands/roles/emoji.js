@@ -19,6 +19,17 @@ const emoji = new Command({
   description: 'Manage server emojis.',
   permLevel: LEVELS.MOD,
   usage: 'add/remove/rename/addmany/info <...>',
+  help: {
+    title: 'Emoji management',
+    intro: 'Add, remove, rename and inspect server emojis. Add from an emoji, URL, or attachment.',
+    subcommands: [
+      { usage: 'add <emoji/url/attachment> [name]', desc: 'Add an emoji to the server.' },
+      { usage: 'addmany <emojis...>', desc: 'Bulk-add multiple custom emojis at once.' },
+      { usage: 'remove <emoji/name>', desc: 'Remove an emoji.' },
+      { usage: 'rename <emoji> <new name>', desc: 'Rename an emoji.' },
+      { usage: 'info <emoji>', desc: 'Show info about a custom emoji.' },
+    ],
+  },
   botPerms: [PermissionFlagsBits.ManageGuildExpressions],
   async run({ message, args, prefix, sub }) {
     switch (sub) {

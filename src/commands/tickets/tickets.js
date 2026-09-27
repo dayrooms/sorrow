@@ -12,6 +12,19 @@ const command = new Command({
   description: 'Support ticket system.',
   permLevel: LEVELS.USER,
   usage: 'setup | panel | close | claim | add/remove <user>',
+  help: {
+    title: 'Support ticket system',
+    intro: 'Button-based support tickets. An admin runs setup to post a panel; members click to open a private ticket channel. Staff can claim, add/remove people, and close.',
+    subcommands: [
+      { usage: 'setup', desc: 'Admin: create the ticket category and post the "Open a Ticket" panel here.' },
+      { usage: 'staffroles @role', desc: 'Admin: add a role as ticket staff (pinged on open, can see tickets).' },
+      { usage: 'reset', desc: 'Admin: wipe the ticket system.' },
+      { usage: 'close', desc: 'Close the current ticket (deletes it after 5s).' },
+      { usage: 'claim', desc: 'Claim the current ticket as the handling staff.' },
+      { usage: 'add <user>', desc: 'Add a user to the current ticket.' },
+      { usage: 'remove <user>', desc: 'Remove a user from the current ticket.' },
+    ],
+  },
   async run({ client, message, args, prefix, sub }) {
     const cfg = db.getSettings(message.guild.id, 'tickets', { category: null, staffRoles: [], panelChannel: null, count: 0, open: {} });
 
