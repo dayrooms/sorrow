@@ -60,6 +60,7 @@ module.exports = new Command({
   usage: '<subcommand>',
   help: {
     title: 'Server nuke protection',
+    perm: 'Server Owner',
     intro: 'Watches your staff via the audit log, punishes attackers, and restores what they destroy. Put Sorrow at the top of the role list; the server owner can never be punished.',
     subcommands: [
       { usage: 'setup', desc: 'Enable antinuke with safe defaults (channel/role delete, ban, kick, webhook, bot-add, vanity) and set the log channel here. Best first step.' },
@@ -148,9 +149,12 @@ module.exports = new Command({
         });
       }
 
-      case 'edit':
+      case 'edit': {
+        const { sendAntinukeEdit } = require('./antinukeConfig');
+        return sendAntinukeEdit(message, prefix);
+      }
       case 'permissions':
-        return sendEditGuide(message, prefix, sub === 'permissions');
+        return sendEditGuide(message, prefix, true);
 
       case 'logging': {
         if (!isOwner) return noOwner(message);

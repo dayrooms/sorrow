@@ -9,6 +9,18 @@ module.exports = {
   name: 'interactionCreate',
   async execute(client, interaction) {
     try {
+      // ── Antinuke / Antiraid interactive configurators ──────
+      // These handle select menus, buttons AND modal submits, so they must be
+      // checked before the isButton()-only blocks below.
+      if (interaction.customId?.startsWith('ancfg:')) {
+        const { handleAntinuke } = require('../commands/antinuke/antinukeConfig');
+        return handleAntinuke(client, interaction);
+      }
+      if (interaction.customId?.startsWith('arcfg:')) {
+        const { handleAntiraid } = require('../commands/antinuke/antinukeConfig');
+        return handleAntiraid(client, interaction);
+      }
+
       if (interaction.isButton()) {
         // ── Giveaway entry ───────────────────────────────────
         if (interaction.customId === 'gw_enter') {

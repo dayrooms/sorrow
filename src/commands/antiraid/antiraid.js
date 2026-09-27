@@ -21,6 +21,7 @@ module.exports = new Command({
   usage: '<subcommand>',
   help: {
     title: 'Raid & mass-join protection',
+    perm: 'Server Owner',
     intro: 'Watches your front door: mass joins, brand-new/young accounts, and default-avatar accounts. Run setup for safe defaults, then tune each module. During a live raid use lockdown, raid, or recentban.',
     subcommands: [
       { usage: 'setup', desc: 'Enable antiraid with safe defaults (mass-join + new-account filters on) and set the log channel here.' },
@@ -72,18 +73,10 @@ module.exports = new Command({
         });
       }
 
-      case 'edit':
-        return message.channel.send({
-          embeds: [
-            base().setTitle('Antiraid — Edit').setDescription(
-              [
-                `\`${prefix}antiraid massjoin <on/off> [threshold] [windowSeconds] [kick/ban/lockdown]\``,
-                `\`${prefix}antiraid newaccounts <on/off> [minAge e.g. 7d] [kick/ban]\``,
-                `\`${prefix}antiraid noavatar <on/off> [kick/ban]\``,
-              ].join('\n')
-            ),
-          ],
-        });
+      case 'edit': {
+        const { sendAntiraidEdit } = require('../antinuke/antinukeConfig');
+        return sendAntiraidEdit(message);
+      }
 
       case 'massjoin': {
         if (!isOwner(message)) return owner(message);

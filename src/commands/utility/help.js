@@ -110,9 +110,15 @@ module.exports = new Command({
       const cat = i.values[0];
       if (cat === 'home') return i.update({ embeds: [home] }).catch(() => {});
       const cmds = byCat[cat] || [];
+      // Emoji live only on the dropdown options — keep category cards clean text.
       const embed = base(client.config.colors.accent)
-        .setTitle(`${CATEGORY_META[cat]?.emoji || '📁'} ${CATEGORY_META[cat]?.label || cat}`)
-        .setDescription(cmds.map((c) => `**${c.name}** — ${c.description}`).join('\n').slice(0, 4096))
+        .setTitle(`${CATEGORY_META[cat]?.label || cat}`)
+        .setDescription(
+          (
+            (CATEGORY_META[cat]?.desc ? `*${CATEGORY_META[cat].desc}*\n\n` : '') +
+            cmds.map((c) => `**${c.name}** — ${c.description}`).join('\n')
+          ).slice(0, 4096)
+        )
         .setFooter({ text: `${cmds.length} commands · ${prefix}help <command> for details` });
       return i.update({ embeds: [embed] }).catch(() => {});
     });
