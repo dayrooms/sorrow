@@ -27,13 +27,22 @@ module.exports = {
       const selfAfk = db.getAfk(guildId, message.author.id);
       if (selfAfk) {
         db.removeAfk(guildId, message.author.id);
+        // How many people mentioned them while away?
+        const pending = db.getSettings(guildId, `afkmentions:${message.author.id}`, { list: [] });
+        const count = pending.list?.length || 0;
         message.reply({
-          embeds: [require('../utils/embed').success(message.author, `welcome back — removed your AFK.`)],
+          embeds: [
+            require('../utils/embed').success(
+              message.author,
+              `welcome back — removed your AFK.${count ? ` You were mentioned **${count}** time(s) — use \`${client.prefixFor(guildId)}afkmentions\` to see them.` : ''}`
+            ),
+          ],
           allowedMentions: { repliedUser: false },
         }).catch(() => {});
       }
       if (message.mentions.users.size) {
         for (const [, u] of message.mentions.users) {
+          if (u.id === message.author.id) continue;
           const a = db.getAfk(guildId, u.id);
           if (a) {
             message.channel
@@ -45,6 +54,19 @@ module.exports = {
                 ],
               })
               .catch(() => {});
+            // Record the mention for their afkmentions list (keep last 25).
+            const store = db.getSettings(guildId, `afkmentions:${u.id}`, { list: [] });
+            store.list = store.list || [];
+            store.list.push({
+              by: message.author.id,
+              tag: message.author.tag,
+              channel: message.channel.id,
+              url: message.url,
+              content: message.content.slice(0, 200),
+              at: Math.floor(Date.now() / 1000),
+            });
+            if (store.list.length > 25) store.list = store.list.slice(-25);
+            db.saveSettings(guildId, `afkmentions:${u.id}`, store);
           }
         }
       }

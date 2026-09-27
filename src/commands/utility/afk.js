@@ -3,6 +3,7 @@ const Command = require('../../structures/Command');
 const { LEVELS } = require('../../utils/permissions');
 const { success, error, base } = require('../../utils/embed');
 const { parseDuration, formatDuration } = require('../../utils/resolve');
+const { paginate, chunk } = require('../../utils/paginate');
 const db = require('../../database/db');
 
 const afk = new Command({
@@ -10,7 +11,46 @@ const afk = new Command({
   async run({ message, args }) {
     const reason = args.join(' ') || 'AFK';
     db.setAfk(message.guild.id, message.author.id, reason);
+    // Start a fresh mentions log for this AFK session.
+    db.saveSettings(message.guild.id, `afkmentions:${message.author.id}`, { list: [] });
     return message.reply({ embeds: [success(message.author, `You are now AFK: ${reason}`)] });
+  },
+});
+
+const afkmentions = new Command({
+  name: 'afkmentions', aliases: ['afkm', 'mentions'], category: 'utility', description: 'See who mentioned you while you were AFK.', permLevel: LEVELS.USER,
+  async run({ message }) {
+    const store = db.getSettings(message.guild.id, `afkmentions:${message.author.id}`, { list: [] });
+    const list = store.list || [];
+    if (!list.length) return message.reply({ embeds: [base().setDescription('Nobody mentioned you while you were away. 🎉')] });
+    const lines = list
+      .slice()
+      .reverse()
+      .map((m) => `**${m.tag}** · <t:${m.at}:R> · [jump](${m.url})\n> ${m.content || '*(no text)*'}`);
+    const pages = chunk(lines, 8).map((c) => base().setTitle(`Mentions while AFK (${list.length})`).setDescription(c.join('\n\n')));
+    return paginate(message, pages, { userId: message.author.id });
+  },
+});
+
+const count = new Command({
+  name: 'count', aliases: ['servercount', 'membercount2'], category: 'utility', description: 'Show member and voice-channel counts.', permLevel: LEVELS.USER,
+  async run({ message }) {
+    const g = message.guild;
+    await g.members.fetch().catch(() => {});
+    const bots = g.members.cache.filter((m) => m.user.bot).size;
+    const humans = g.memberCount - bots;
+    const inVoice = g.members.cache.filter((m) => m.voice?.channelId).size;
+    const voiceChannels = g.channels.cache.filter((c) => c.isVoiceBased()).size;
+    return message.channel.send({
+      embeds: [
+        base()
+          .setTitle(`${g.name} — counts`)
+          .addFields(
+            { name: '👥 Members', value: `**${g.memberCount}** total\n${humans} humans · ${bots} bots`, inline: true },
+            { name: '🔊 In Voice', value: `**${inVoice}** in ${voiceChannels} channel(s)`, inline: true }
+          ),
+      ],
+    });
   },
 });
 
@@ -102,4 +142,4 @@ const calculate = new Command({
   },
 });
 
-module.exports = [afk, snipe, editsnipe, clearsnipes, poll, remind, calculate];
+module.exports = [afk, afkmentions, count, snipe, editsnipe, clearsnipes, poll, remind, calculate];

@@ -90,13 +90,36 @@ function antinukeModuleCard(guildId, key) {
       { name: 'Status', value: mod.on ? '🟢 enabled' : '🔴 disabled', inline: true },
       { name: 'Punishment', value: mod.punishment, inline: true },
       { name: 'Threshold', value: `${mod.threshold} in ${Math.round((cfg.windowMs || config.antinukeDefaults.windowMs) / 1000)}s`, inline: true }
+    )
+    .setFooter({ text: 'Pick a status & punishment below, or set the threshold.' });
+
+  const statusSelect = new StringSelectMenuBuilder()
+    .setCustomId(`ancfg:status:${key}`)
+    .setPlaceholder(`Status: ${mod.on ? 'Enabled' : 'Disabled'}`)
+    .addOptions(
+      { label: 'Enabled', value: 'on', emoji: '🟢', default: mod.on },
+      { label: 'Disabled', value: 'off', emoji: '🔴', default: !mod.on }
     );
-  const row = new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId(`ancfg:configure:${key}`).setLabel('Configure').setStyle(ButtonStyle.Primary),
-    new ButtonBuilder().setCustomId(`ancfg:toggle:${key}`).setLabel(mod.on ? 'Quick Disable' : 'Quick Enable').setStyle(mod.on ? ButtonStyle.Danger : ButtonStyle.Success),
+  const punishSelect = new StringSelectMenuBuilder()
+    .setCustomId(`ancfg:punish:${key}`)
+    .setPlaceholder(`Punishment: ${mod.punishment}`)
+    .addOptions(
+      { label: 'Ban', value: 'ban', description: 'Ban the attacker', default: mod.punishment === 'ban' },
+      { label: 'Kick', value: 'kick', description: 'Kick the attacker', default: mod.punishment === 'kick' },
+      { label: 'Strip Roles', value: 'strip', description: 'Remove their dangerous roles', default: mod.punishment === 'strip' }
+    );
+  const buttons = new ActionRowBuilder().addComponents(
+    new ButtonBuilder().setCustomId(`ancfg:threshold:${key}`).setLabel('Set Threshold').setStyle(ButtonStyle.Primary),
     new ButtonBuilder().setCustomId('ancfg:back').setLabel('Back').setStyle(ButtonStyle.Secondary)
   );
-  return { embeds: [embed], components: [row] };
+  return {
+    embeds: [embed],
+    components: [
+      new ActionRowBuilder().addComponents(statusSelect),
+      new ActionRowBuilder().addComponents(punishSelect),
+      buttons,
+    ],
+  };
 }
 
 function antinukeModal(guildId, key) {
@@ -104,16 +127,16 @@ function antinukeModal(guildId, key) {
   const mod = cfg.modules[key] || { ...an.DEFAULT_MODULE };
   return new ModalBuilder()
     .setCustomId(`ancfg:modal:${key}`)
-    .setTitle(`Configure ${an.MODULES[key]?.label || key}`.slice(0, 45))
+    .setTitle(`Threshold — ${an.MODULES[key]?.label || key}`.slice(0, 45))
     .addComponents(
       new ActionRowBuilder().addComponents(
-        new TextInputBuilder().setCustomId('threshold').setLabel('Threshold (actions before punishment)').setStyle(TextInputStyle.Short).setValue(String(mod.threshold)).setRequired(true)
-      ),
-      new ActionRowBuilder().addComponents(
-        new TextInputBuilder().setCustomId('status').setLabel('Status (enabled / disabled)').setStyle(TextInputStyle.Short).setValue(mod.on ? 'enabled' : 'disabled').setRequired(true)
-      ),
-      new ActionRowBuilder().addComponents(
-        new TextInputBuilder().setCustomId('punishment').setLabel('Punishment (ban / kick / strip)').setStyle(TextInputStyle.Short).setValue(mod.punishment).setRequired(true)
+        new TextInputBuilder()
+          .setCustomId('threshold')
+          .setLabel('Actions before punishment triggers')
+          .setStyle(TextInputStyle.Short)
+          .setValue(String(mod.threshold))
+          .setPlaceholder('e.g. 3')
+          .setRequired(true)
       )
     );
 }
@@ -125,24 +148,32 @@ async function handleAntinuke(client, interaction) {
   const [, action, key] = interaction.customId.split(':');
   const guildId = interaction.guild.id;
 
-  if (interaction.isStringSelectMenu() && action === 'select') {
-    const chosen = interaction.values[0];
-    return interaction.update(antinukeModuleCard(guildId, chosen)).catch(() => {});
+  if (interaction.isStringSelectMenu()) {
+    if (action === 'select') {
+      return interaction.update(antinukeModuleCard(guildId, interaction.values[0])).catch(() => {});
+    }
+    if (action === 'status') {
+      const cfg = an.getConfig(guildId);
+      cfg.modules[key] = cfg.modules[key] || { ...an.DEFAULT_MODULE };
+      cfg.modules[key].on = interaction.values[0] === 'on';
+      if (cfg.modules[key].on && !cfg.enabled) cfg.enabled = true;
+      an.saveConfig(guildId, cfg);
+      return interaction.update(antinukeModuleCard(guildId, key)).catch(() => {});
+    }
+    if (action === 'punish') {
+      const cfg = an.getConfig(guildId);
+      cfg.modules[key] = cfg.modules[key] || { ...an.DEFAULT_MODULE };
+      cfg.modules[key].punishment = interaction.values[0];
+      an.saveConfig(guildId, cfg);
+      return interaction.update(antinukeModuleCard(guildId, key)).catch(() => {});
+    }
   }
 
   if (interaction.isButton()) {
     if (action === 'back') {
       return interaction.update({ embeds: [antinukeIntro(client.prefixFor(guildId))], components: [antinukeModuleMenu()] }).catch(() => {});
     }
-    if (action === 'toggle') {
-      const cfg = an.getConfig(guildId);
-      cfg.modules[key] = cfg.modules[key] || { ...an.DEFAULT_MODULE };
-      cfg.modules[key].on = !cfg.modules[key].on;
-      if (cfg.modules[key].on && !cfg.enabled) cfg.enabled = true;
-      an.saveConfig(guildId, cfg);
-      return interaction.update(antinukeModuleCard(guildId, key)).catch(() => {});
-    }
-    if (action === 'configure') {
+    if (action === 'threshold') {
       return interaction.showModal(antinukeModal(guildId, key)).catch(() => {});
     }
   }
@@ -152,11 +183,6 @@ async function handleAntinuke(client, interaction) {
     cfg.modules[key] = cfg.modules[key] || { ...an.DEFAULT_MODULE };
     const th = parseInt(interaction.fields.getTextInputValue('threshold'), 10);
     if (!Number.isNaN(th) && th > 0) cfg.modules[key].threshold = th;
-    const status = interaction.fields.getTextInputValue('status').toLowerCase();
-    cfg.modules[key].on = status.startsWith('e') || status === 'on' || status === 'true';
-    const pun = interaction.fields.getTextInputValue('punishment').toLowerCase();
-    if (['ban', 'kick', 'strip'].includes(pun)) cfg.modules[key].punishment = pun;
-    if (cfg.modules[key].on && !cfg.enabled) cfg.enabled = true;
     an.saveConfig(guildId, cfg);
     return interaction.update(antinukeModuleCard(guildId, key)).catch(() =>
       interaction.reply({ content: 'Saved.', ephemeral: true }).catch(() => {})
@@ -209,24 +235,47 @@ function antiraidModuleCard(guildId, key) {
     { name: 'Status', value: mod.on ? '🟢 enabled' : '🔴 disabled', inline: true },
     { name: 'Action', value: mod.action || 'kick', inline: true },
   ];
-  if (key === 'massjoin') fields.push({ name: 'Trigger', value: `${mod.threshold} joins / ${Math.round((mod.windowMs || 10000) / 1000)}s`, inline: true });
-  if (key === 'newaccounts') fields.push({ name: 'Min age', value: `${Math.round((mod.minAgeMs || 0) / 86400000)}d`, inline: true });
+  if (key === 'massjoin') fields.push({ name: 'Trigger', value: `${mod.threshold || 10} joins / ${Math.round((mod.windowMs || 10000) / 1000)}s`, inline: true });
+  if (key === 'newaccounts') fields.push({ name: 'Min age', value: `${Math.round((mod.minAgeMs || 7 * 86400000) / 86400000)}d`, inline: true });
   const embed = new EmbedBuilder().setColor(config.colors.accent).setTitle('🚨 Antiraid Configuration').addFields(fields);
-  const row = new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId(`arcfg:configure:${key}`).setLabel('Configure').setStyle(ButtonStyle.Primary),
-    new ButtonBuilder().setCustomId(`arcfg:toggle:${key}`).setLabel(mod.on ? 'Quick Disable' : 'Quick Enable').setStyle(mod.on ? ButtonStyle.Danger : ButtonStyle.Success),
-    new ButtonBuilder().setCustomId('arcfg:back').setLabel('Back').setStyle(ButtonStyle.Secondary)
-  );
-  return { embeds: [embed], components: [row] };
+
+  const statusSelect = new StringSelectMenuBuilder()
+    .setCustomId(`arcfg:status:${key}`)
+    .setPlaceholder(`Status: ${mod.on ? 'Enabled' : 'Disabled'}`)
+    .addOptions(
+      { label: 'Enabled', value: 'on', emoji: '🟢', default: !!mod.on },
+      { label: 'Disabled', value: 'off', emoji: '🔴', default: !mod.on }
+    );
+  const actionOptions = [
+    { label: 'Kick', value: 'kick', default: (mod.action || 'kick') === 'kick' },
+    { label: 'Ban', value: 'ban', default: mod.action === 'ban' },
+    { label: 'Timeout', value: 'timeout', default: mod.action === 'timeout' },
+  ];
+  if (key === 'massjoin') actionOptions.push({ label: 'Lockdown', value: 'lockdown', default: mod.action === 'lockdown' });
+  const actionSelect = new StringSelectMenuBuilder()
+    .setCustomId(`arcfg:action:${key}`)
+    .setPlaceholder(`Action: ${mod.action || 'kick'}`)
+    .addOptions(actionOptions);
+
+  const components = [
+    new ActionRowBuilder().addComponents(statusSelect),
+    new ActionRowBuilder().addComponents(actionSelect),
+  ];
+  // Numeric extras (threshold/window/min age) still go through a small modal.
+  const buttonRow = new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('arcfg:back').setLabel('Back').setStyle(ButtonStyle.Secondary));
+  if (key === 'massjoin' || key === 'newaccounts') {
+    buttonRow.components.unshift(
+      new ButtonBuilder().setCustomId(`arcfg:options:${key}`).setLabel(key === 'massjoin' ? 'Set Threshold/Window' : 'Set Min Age').setStyle(ButtonStyle.Primary)
+    );
+  }
+  components.push(buttonRow);
+  return { embeds: [embed], components };
 }
 
 function antiraidModal(guildId, key) {
   const cfg = ar.getConfig(guildId);
   const mod = cfg[key] || {};
-  const rows = [
-    new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('status').setLabel('Status (enabled / disabled)').setStyle(TextInputStyle.Short).setValue(mod.on ? 'enabled' : 'disabled').setRequired(true)),
-    new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('action').setLabel('Action (kick / ban / lockdown / timeout)').setStyle(TextInputStyle.Short).setValue(mod.action || 'kick').setRequired(true)),
-  ];
+  const rows = [];
   if (key === 'massjoin') {
     rows.push(new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('threshold').setLabel('Join threshold').setStyle(TextInputStyle.Short).setValue(String(mod.threshold || 10)).setRequired(true)));
     rows.push(new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('window').setLabel('Window (seconds)').setStyle(TextInputStyle.Short).setValue(String(Math.round((mod.windowMs || 10000) / 1000))).setRequired(true)));
@@ -234,7 +283,7 @@ function antiraidModal(guildId, key) {
   if (key === 'newaccounts') {
     rows.push(new ActionRowBuilder().addComponents(new TextInputBuilder().setCustomId('minage').setLabel('Minimum account age in days').setStyle(TextInputStyle.Short).setValue(String(Math.round((mod.minAgeMs || 7 * 86400000) / 86400000))).setRequired(true)));
   }
-  return new ModalBuilder().setCustomId(`arcfg:modal:${key}`).setTitle(`Configure ${AR_MODULES[key] || key}`.slice(0, 45)).addComponents(...rows);
+  return new ModalBuilder().setCustomId(`arcfg:modal:${key}`).setTitle(`Options — ${AR_MODULES[key] || key}`.slice(0, 45)).addComponents(...rows);
 }
 
 async function handleAntiraid(client, interaction) {
@@ -244,28 +293,31 @@ async function handleAntiraid(client, interaction) {
   const [, action, key] = interaction.customId.split(':');
   const guildId = interaction.guild.id;
 
-  if (interaction.isStringSelectMenu() && action === 'select') {
-    return interaction.update(antiraidModuleCard(guildId, interaction.values[0])).catch(() => {});
-  }
-  if (interaction.isButton()) {
-    if (action === 'back') return interaction.update({ embeds: [antiraidIntro()], components: [antiraidModuleMenu()] }).catch(() => {});
-    if (action === 'toggle') {
+  if (interaction.isStringSelectMenu()) {
+    if (action === 'select') return interaction.update(antiraidModuleCard(guildId, interaction.values[0])).catch(() => {});
+    if (action === 'status') {
       const cfg = ar.getConfig(guildId);
       cfg[key] = cfg[key] || {};
-      cfg[key].on = !cfg[key].on;
+      cfg[key].on = interaction.values[0] === 'on';
       if (cfg[key].on && !cfg.enabled) cfg.enabled = true;
       ar.saveConfig(guildId, cfg);
       return interaction.update(antiraidModuleCard(guildId, key)).catch(() => {});
     }
-    if (action === 'configure') return interaction.showModal(antiraidModal(guildId, key)).catch(() => {});
+    if (action === 'action') {
+      const cfg = ar.getConfig(guildId);
+      cfg[key] = cfg[key] || {};
+      cfg[key].action = interaction.values[0];
+      ar.saveConfig(guildId, cfg);
+      return interaction.update(antiraidModuleCard(guildId, key)).catch(() => {});
+    }
+  }
+  if (interaction.isButton()) {
+    if (action === 'back') return interaction.update({ embeds: [antiraidIntro()], components: [antiraidModuleMenu()] }).catch(() => {});
+    if (action === 'options') return interaction.showModal(antiraidModal(guildId, key)).catch(() => {});
   }
   if (interaction.isModalSubmit() && action === 'modal') {
     const cfg = ar.getConfig(guildId);
     cfg[key] = cfg[key] || {};
-    const status = interaction.fields.getTextInputValue('status').toLowerCase();
-    cfg[key].on = status.startsWith('e') || status === 'on';
-    const act = interaction.fields.getTextInputValue('action').toLowerCase();
-    if (['kick', 'ban', 'lockdown', 'timeout'].includes(act)) cfg[key].action = act;
     if (key === 'massjoin') {
       const th = parseInt(interaction.fields.getTextInputValue('threshold'), 10);
       if (!Number.isNaN(th) && th > 0) cfg[key].threshold = th;
@@ -276,7 +328,6 @@ async function handleAntiraid(client, interaction) {
       const d = parseInt(interaction.fields.getTextInputValue('minage'), 10);
       if (!Number.isNaN(d) && d > 0) cfg[key].minAgeMs = d * 86400000;
     }
-    if (cfg[key].on && !cfg.enabled) cfg.enabled = true;
     ar.saveConfig(guildId, cfg);
     return interaction.update(antiraidModuleCard(guildId, key)).catch(() =>
       interaction.reply({ content: 'Saved.', ephemeral: true }).catch(() => {})
