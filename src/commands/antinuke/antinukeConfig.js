@@ -87,7 +87,7 @@ function antinukeModuleCard(guildId, key) {
     .setTitle('🛡️ Antinuke Configuration')
     .addFields(
       { name: 'Module', value: label, inline: true },
-      { name: 'Status', value: mod.on ? '🟢 enabled' : '🔴 disabled', inline: true },
+      { name: 'Status', value: mod.on ? '<:Saturn_Enabled:1555070627570917497> enabled' : '<:Saturn_Disabled:1555070673813119018> disabled', inline: true },
       { name: 'Punishment', value: mod.punishment, inline: true },
       { name: 'Threshold', value: `${mod.threshold} in ${Math.round((cfg.windowMs || config.antinukeDefaults.windowMs) / 1000)}s`, inline: true }
     )
@@ -97,8 +97,8 @@ function antinukeModuleCard(guildId, key) {
     .setCustomId(`ancfg:status:${key}`)
     .setPlaceholder(`Status: ${mod.on ? 'Enabled' : 'Disabled'}`)
     .addOptions(
-      { label: 'Enabled', value: 'on', emoji: '🟢', default: mod.on },
-      { label: 'Disabled', value: 'off', emoji: '🔴', default: !mod.on }
+      { label: 'Enabled', value: 'on', emoji: '<:Saturn_Enabled:1555070627570917497>', default: mod.on },
+      { label: 'Disabled', value: 'off', emoji: '<:Saturn_Disabled:1555070673813119018>', default: !mod.on }
     );
   const punishSelect = new StringSelectMenuBuilder()
     .setCustomId(`ancfg:punish:${key}`)
@@ -232,7 +232,7 @@ function antiraidModuleCard(guildId, key) {
   const mod = cfg[key] || {};
   const fields = [
     { name: 'Module', value: AR_MODULES[key] || key, inline: true },
-    { name: 'Status', value: mod.on ? '🟢 enabled' : '🔴 disabled', inline: true },
+    { name: 'Status', value: mod.on ? '<:Saturn_Enabled:1555070627570917497> enabled' : '<:Saturn_Disabled:1555070673813119018> disabled', inline: true },
     { name: 'Action', value: mod.action || 'kick', inline: true },
   ];
   if (key === 'massjoin') fields.push({ name: 'Trigger', value: `${mod.threshold || 10} joins / ${Math.round((mod.windowMs || 10000) / 1000)}s`, inline: true });
@@ -243,8 +243,8 @@ function antiraidModuleCard(guildId, key) {
     .setCustomId(`arcfg:status:${key}`)
     .setPlaceholder(`Status: ${mod.on ? 'Enabled' : 'Disabled'}`)
     .addOptions(
-      { label: 'Enabled', value: 'on', emoji: '🟢', default: !!mod.on },
-      { label: 'Disabled', value: 'off', emoji: '🔴', default: !mod.on }
+      { label: 'Enabled', value: 'on', emoji: '<:Saturn_Enabled:1555070627570917497>', default: !!mod.on },
+      { label: 'Disabled', value: 'off', emoji: '<:Saturn_Disabled:1555070673813119018>', default: !mod.on }
     );
   const actionOptions = [
     { label: 'Kick', value: 'kick', default: (mod.action || 'kick') === 'kick' },
